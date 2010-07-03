@@ -7,8 +7,8 @@ namespace PuzzleSolver
 	/// and then invokes standard backtracking.  Each time it makes a guess, it tries the rules again to
 	/// determine the implications.  If the current board turns out to be impossible to solve, it backtracks.
 	/// </summary>
-	/// <typeparam name="PS"></typeparam>
-	public class Backtracker<PS> where PS : IPartialSolution
+	/// <typeparam name="TPs"></typeparam>
+	public class Backtracker<TPs> where TPs : IPartialSolution
 	{
 		/// <summary>
 		/// Return the first solution we can find if any
@@ -18,11 +18,11 @@ namespace PuzzleSolver
 		/// <param name="psFinal">Final solution</param>
 		/// <param name="lstbti">Reasons for inferences</param>
 		/// <returns>True if a solution was found, else false</returns>
-		static public bool FSolve(PS ps, ExpertSystem<PS> es, out PS psFinal, out List<BackTrackInfo> lstbti)
+		static public bool FSolve(TPs ps, ExpertSystem<TPs> es, out TPs psFinal, out List<BackTrackInfo> lstbti)
 		{
-			List<PS> lstpsSolutions = new List<PS>();
+			List<TPs> lstpsSolutions = new List<TPs>();
 			lstbti = new List<BackTrackInfo>();
-			psFinal = default(PS);
+			psFinal = default(TPs);
 
 			FSearchForMultipleSolutions(ps, es, lstbti, lstpsSolutions, 1, null, BacktrackReason.InitialEntry);
 			if (lstpsSolutions.Count == 1)
@@ -40,40 +40,43 @@ namespace PuzzleSolver
 		/// <param name="es">Expert System to apply</param>
 		/// <param name="psFinal">Final solution</param>
 		/// <returns>True if a solution was found, else false</returns>
-		static public bool FSolve(PS ps, ExpertSystem<PS> es, out PS psFinal)
+		static public bool FSolve(TPs ps, ExpertSystem<TPs> es, out TPs psFinal)
 		{
 			List<BackTrackInfo> lstbti;
 			return FSolve(ps, es, out psFinal, out lstbti);
 		}
 
 		// See if there is exactly one unique solution.
-		static public bool FUnique(PS ps, ExpertSystem<PS> es)
+		static public bool FUnique(TPs ps, ExpertSystem<TPs> es)
 		{
-			List<PS> lstpsSolutions = new List<PS>();
+			List<TPs> lstpsSolutions = new List<TPs>();
 			List<BackTrackInfo> lstbti = new List<BackTrackInfo>();
 
-			FSearchForMultipleSolutions((PS)ps.Clone(), es, lstbti, lstpsSolutions, 2, null, BacktrackReason.InitialEntry);
+			FSearchForMultipleSolutions((TPs)ps.Clone(), es, lstbti, lstpsSolutions, 2, null, BacktrackReason.InitialEntry);
 			return lstpsSolutions.Count == 1;
 		}
 
-		/// <summary>
-		/// Searches for a fixed count of solutions.  Returns as many up to that count as it can find.
-		/// </summary>
-		/// <param name="ps">The puzzle</param>
-		/// <param name="es">The expert system</param>
-		/// <param name="lstpsSolutions">The list to place the found solutions in</param>
-		/// <param name="csln">The desired count of solutions</param>
-		/// <returns>True if we need to keep searching</returns>
-		static private bool FSearchForMultipleSolutions(
-			PS ps, ExpertSystem<PS> es, List<BackTrackInfo> lstbti, List<PS> lstpsSolutions, int csln, IExtension iext, BacktrackReason btr)
+	    /// <summary>
+	    /// Searches for a fixed count of solutions.  Returns as many up to that count as it can find.
+	    /// </summary>
+	    /// <param name="ps">The puzzle</param>
+	    /// <param name="es">The expert system</param>
+	    /// <param name="lstbti">List of backtrack info</param>
+	    /// <param name="lstpsSolutions">The list to place the found solutions in</param>
+	    /// <param name="csln">The desired count of solutions</param>
+	    /// <param name="iext">Extension used</param>
+	    /// <param name="btr">Reason we have to backtrack</param>
+	    /// <returns>True if we need to keep searching</returns>
+	    static private bool FSearchForMultipleSolutions(
+			TPs ps, ExpertSystem<TPs> es, List<BackTrackInfo> lstbti, List<TPs> lstpsSolutions, int csln, IExtension iext, BacktrackReason btr)
 		{
-			List<ReasonRulePair> lstrrp;
-			BacktrackReason btrCall = BacktrackReason.Guess;
+	        BacktrackReason btrCall = BacktrackReason.Guess;
 
 			// Use any rules that might apply...
 			if (es != null)
 			{
-				bool fApplied = es.FApply(ps, out lstrrp);
+			    List<ReasonRulePair> lstrrp;
+			    bool fApplied = es.FApply(ps, out lstrrp);
 				lstbti.Add(new BackTrackInfo(BacktrackReason.NoBacktrack, lstrrp, iext));
 
 				if (!fApplied)
@@ -91,7 +94,7 @@ namespace PuzzleSolver
 			if (ps.FSolved())
 			{
 				// See if this is a duplicate of an earlier generated solution
-				foreach (IPartialSolution psCur in lstpsSolutions)
+				foreach (TPs psCur in lstpsSolutions)
 				{
 					// If so, backtrack and keep searching for our goal count
 					if (ps.IdenticalTo(psCur))
@@ -105,7 +108,7 @@ namespace PuzzleSolver
 				}
 
 				// New solution - add to the list of solutions
-				lstpsSolutions.Add((PS)ps.Clone());
+				lstpsSolutions.Add((TPs)ps.Clone());
 
 				// If we've found our goal count of solution, shut the whole operation down and return failure to
 				// stop searching for further solutions
@@ -152,7 +155,7 @@ namespace PuzzleSolver
 			// Try each extension in turn
 			foreach (IExtension ext in lstIExtensions)
 			{
-				PS psCur = (PS)ps.PsApply(ext, true);
+				TPs psCur = (TPs)ps.PsApply(ext, true);
 
 				// If we've found our goal count of solutions, just return up the tree
 				if (!FSearchForMultipleSolutions(psCur, es, lstbti, lstpsSolutions, csln, ext, btrCall))
@@ -200,7 +203,7 @@ namespace PuzzleSolver
 
 		public override string ToString()
 		{
-			return BackTrackReason.ToString() + (Extension == null ? "" : Extension.ToString());
+			return BackTrackReason + (Extension == null ? "" : Extension.ToString());
 		}
 	}
 }

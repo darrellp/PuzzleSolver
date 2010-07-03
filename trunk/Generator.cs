@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PuzzleSolver
+﻿namespace PuzzleSolver
 {
 	abstract public class Generator<T> where T : IPartialSolution, new()
 	{
 		protected abstract IExtension[] ExtensionList();
 		IExtension[] _arext;
-		T psFinal = new T();
+	    readonly T _psFinal = new T();
 
 		public T Generate(ExpertSystem<T> e)
 		{
@@ -19,14 +15,13 @@ namespace PuzzleSolver
 			while (true)
 			{
 				iSplit = ISplitBinarySearch(0, iSplit, e);
-				//Console.WriteLine(">>>> Final Solution gets index {0}: {1}", iSplit, _arext[iSplit].ToString());
-				psFinal.PsApply(_arext[iSplit - 1], false);
-				if (Backtracker<T>.FUnique(psFinal, e) || iSplit == 1)
+				_psFinal.PsApply(_arext[iSplit - 1], false);
+				if (Backtracker<T>.FUnique(_psFinal, e) || iSplit == 1)
 				{
 					break;
 				}
 			}
-			return psFinal;
+			return _psFinal;
 		}
 
 		/// <summary>
@@ -67,7 +62,7 @@ namespace PuzzleSolver
 
 		T PsAtIndex(int iPop)
 		{
-			T ps = (T)psFinal.Clone();
+			T ps = (T)_psFinal.Clone();
 
 			for (int i = 0; i < iPop; i++)
 			{

@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace PuzzleSolver
 {
@@ -9,11 +8,11 @@ namespace PuzzleSolver
 	/// IPartialSolution objects.  It applies those rules until none
 	/// apply or until some rule flags the partial solution as unsolvable.
 	/// </summary>
-	/// <typeparam name="PS"></typeparam>
-	public class ExpertSystem<PS> where PS : IPartialSolution
+	/// <typeparam name="TPs"></typeparam>
+	public class ExpertSystem<TPs> where TPs : IPartialSolution
 	{
 		public bool IsKeepingReasons {get; set;}
-		List<IRule> _lstIRule;
+	    readonly List<IRule> _lstIRule;
 
 		public ExpertSystem(List<IRule> lstRules, bool fKeepReasons)
 		{
@@ -21,18 +20,17 @@ namespace PuzzleSolver
 			IsKeepingReasons = fKeepReasons;
 		}
 
-		public bool FApply(PS ps)
+		public bool FApply(TPs ps)
 		{
 			List<ReasonRulePair> lstrrp;
 			return FApply(ps, out lstrrp);
 		}
 
 		// Returns false if an impossible state is detected
-		public bool FApply(PS ps, out List<ReasonRulePair> lstrrp)
+		public bool FApply(TPs ps, out List<ReasonRulePair> lstrrp)
 		{
 			bool fApplied = true;
-			bool fImpossible = false;
-			lstrrp = IsKeepingReasons ? new List<ReasonRulePair>() : null;
+		    lstrrp = IsKeepingReasons ? new List<ReasonRulePair>() : null;
 
 			// As long as some rule applied, cycle through and try to apply them all
 			while (fApplied)
@@ -44,16 +42,14 @@ namespace PuzzleSolver
 					{
 						List<IReason> lstReason;
 
-						fApplied = rl.FApply(ps, out lstReason, out fImpossible);
+					    bool fImpossible;
+					    fApplied = rl.FApply(ps, out lstReason, out fImpossible);
 						if (fImpossible)
 						{
 							// Keep the information on the application if desired
 							if (IsKeepingReasons && lstReason != null)
 							{
-								foreach(IReason reason in lstReason)
-                                {
-									lstrrp.Add(new ReasonRulePair(reason, rl));
-                                }
+							    lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
 							}
 							// The rule detected an unsolveable partial solution
 							return false;
@@ -63,10 +59,7 @@ namespace PuzzleSolver
 							// Keep the information on the application if desired
 							if (IsKeepingReasons && lstReason != null)
 							{
-								foreach(IReason reason in lstReason)
-                                {
-									lstrrp.Add(new ReasonRulePair(reason, rl));
-                                }
+							    lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
 							}
 							// If we find a rule that applied, then go to the top of the rules
 							// list since ones at the top (the most "important/useful" ones)
@@ -85,13 +78,13 @@ namespace PuzzleSolver
 
 	public struct ReasonRulePair
 	{
-		public IReason reason;
-		internal IRule rule;
+		public IReason Reason;
+		internal IRule Rule;
 
 		public ReasonRulePair(IReason reasonParm, IRule ruleParm)
 		{
-			reason = reasonParm;
-			rule = ruleParm;
+			Reason = reasonParm;
+			Rule = ruleParm;
 		}
 	}
 }
