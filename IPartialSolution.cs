@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace PuzzleSolver
 {
@@ -19,7 +17,7 @@ namespace PuzzleSolver
 		List<IExtension> GetIExtensions();
 
 		// Apply an extension to get a new child node
-		IPartialSolution PsApply(IExtension ext, bool FReturnClone);
+		IPartialSolution PsApply(IExtension ext, bool fReturnClone);
 
 		// Sometimes between the time we generate an extension and the time we try to apply it, information
 		// may arise to make that extension obsolete.  If so, ExtensionFailed can return false.
