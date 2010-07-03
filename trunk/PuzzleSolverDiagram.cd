@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="PuzzleSolver.ExpertSystem&lt;PS&gt;">
+    <Position X="4.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>PuzzleSolver.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PuzzleSolver.Backtracker&lt;PS&gt;">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAACAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAEAA=</HashCode>
+      <FileName>PuzzleSolver.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="PuzzleSolver.IRule">
+    <Position X="6.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAgAAAA=</HashCode>
+      <FileName>PuzzleSolver.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="PuzzleSolver.IPartialSolution">
+    <Position X="2.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAEAAAgEBAAABA=</HashCode>
+      <FileName>PuzzleSolver.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="PuzzleSolver.IExtension" Collapsed="true">
+    <Position X="2.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>PuzzleSolver.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
