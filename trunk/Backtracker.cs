@@ -39,7 +39,7 @@ namespace PuzzleSolver
 			psFinal = default(TPs);
 
 			// Use SearchForMultipleSolutions to search for precisely one solution
-			FSearchForMultipleSolutions(ps, es, lstbti, lstpsSolutions, 1, null);
+			FSearchForMultipleSolutions(ps, es, lstbti, lstpsSolutions, 1);
 
 			// Did we find a solution?
 			if (lstpsSolutions.Count == 1)
@@ -86,7 +86,7 @@ namespace PuzzleSolver
 			var lstpsSolutions = new List<TPs>();
 			var lstbti = new List<BackTrackInfo>();
 
-			FSearchForMultipleSolutions((TPs)ps.Clone(), es, lstbti, lstpsSolutions, 2, null);
+			FSearchForMultipleSolutions((TPs)ps.Clone(), es, lstbti, lstpsSolutions, 2);
 			return lstpsSolutions.Count == 1;
 		}
 
@@ -102,17 +102,15 @@ namespace PuzzleSolver
 		/// <param name="lstbti">			List of backtrack info. </param>
 		/// <param name="lstpsSolutions">	The list to place the found solutions in. </param>
 		/// <param name="csln">				The desired count of solutions. </param>
-		/// <param name="iext">				Extension used. </param>
 		///
-		/// <returns>	True if we need to keep searching, false if there's no reason for more searching. </returns>
+		///<returns>	True if we need to keep searching, false if there's no reason for more searching. </returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		static private bool FSearchForMultipleSolutions(
 			TPs ps, ExpertSystem<TPs> es,
 			ICollection<BackTrackInfo> lstbti,
 			ICollection<TPs> lstpsSolutions,
-			int csln,
-			IExtension iext)
+			int csln)
 		{
 			// Is an expert system available?
 			if (es != null)
@@ -232,7 +230,7 @@ namespace PuzzleSolver
 				var psCur = (TPs)ps.PsApply(ext, true);
 
 				// Recursively search for a solution with this move
-				var fContinueSearch = FSearchForMultipleSolutions(psCur, es, lstbti, lstpsSolutions, csln, ext);
+				var fContinueSearch = FSearchForMultipleSolutions(psCur, es, lstbti, lstpsSolutions, csln);
 
 				// If there's no reason for more searching
 				if (!fContinueSearch)
