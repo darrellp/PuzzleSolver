@@ -98,7 +98,7 @@ namespace PuzzleSolver
 						// Are we gathering reasons?
 						if (IsKeepingReasons && lstReason != null)
 						{
-							// Add the reason for the application
+							// Add the reason(s) for the application
 							lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
 						}
 						// If we find a rule that applied, then restart at the top
