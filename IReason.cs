@@ -10,6 +10,7 @@ namespace PuzzleSolver
 
 	public interface IReason
 	{
+		// TODO: Determine if we really need HasExtension and GetExtension...
 		bool HasExtension();
 		List<IExtension> GetExtensions();
 	}
