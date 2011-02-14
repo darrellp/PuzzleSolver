@@ -30,49 +30,46 @@ namespace PuzzleSolver
 		public bool FApply(TPs ps, out List<ReasonRulePair> lstrrp)
 		{
 			// Set up
-			bool fApplied = true;
+			var fApplied = true;
 			lstrrp = IsKeepingReasons ? new List<ReasonRulePair>() : null;
 
 			// As long as some rule is applied, cycle through and try to apply them all
 			while (fApplied)
 			{
 				fApplied = false;
-				foreach (IRule rl in _lstIRule)
+				// For every applicable rule
+				foreach (var rl in _lstIRule.Where(rl => rl.FTrigger(ps)))
 				{
-					// If the rule fires
-					if (rl.FTrigger(ps))
+					List<IReason> lstReason;
+					bool fImpossible;
+
+					// Apply the rule
+					fApplied = rl.FApply(ps, out lstReason, out fImpossible);
+
+					// Are we at an impossible position?
+					if (fImpossible)
 					{
-						List<IReason> lstReason;
-						bool fImpossible;
-
-						// Apply the rule
-						fApplied = rl.FApply(ps, out lstReason, out fImpossible);
-
-						// Are we at an impossible position?
-						if (fImpossible)
+						// Are we gathering reasons?
+						if (IsKeepingReasons)
 						{
-							// Are we gathering reasons?
-							if (IsKeepingReasons && lstReason != null)
-							{
-								// Add the reason we failed
-								lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
-							}
-							// The rule detected an unsolveable partial solution - return false
-							return false;
+							// Add the reason we failed
+							lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
 						}
-						if (fApplied)
+						// The rule detected an unsolveable partial solution - return false
+						return false;
+					}
+					if (fApplied)
+					{
+						// Are we gathering reasons?
+						if (IsKeepingReasons && lstReason != null)
 						{
-							// Are we gathering reasons?
-							if (IsKeepingReasons && lstReason != null)
-							{
-								// Add the reason for the application
-								lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
-							}
-							// If we find a rule that applied, then go to the top of the rules
-							// list since ones at the top (the most "important/useful" ones)
-							// may now apply
-							break;
+							// Add the reason for the application
+							lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
 						}
+						// If we find a rule that applied, then restart at the top
+						// since ones at the top (the most "important/useful" ones)
+						// may now apply
+						break;
 					}
 				}
 			}
