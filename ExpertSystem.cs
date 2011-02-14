@@ -29,36 +29,43 @@ namespace PuzzleSolver
 		// Returns false if an impossible state is detected
 		public bool FApply(TPs ps, out List<ReasonRulePair> lstrrp)
 		{
+            // Set up
 			bool fApplied = true;
 		    lstrrp = IsKeepingReasons ? new List<ReasonRulePair>() : null;
 
-			// As long as some rule applied, cycle through and try to apply them all
+			// As long as some rule is applied, cycle through and try to apply them all
 			while (fApplied)
 			{
 				fApplied = false;
 				foreach (IRule rl in _lstIRule)
 				{
+                    // If the rule fires
 					if (rl.FTrigger(ps))
 					{
 						List<IReason> lstReason;
-
 					    bool fImpossible;
+
+                        // Apply the rule
 					    fApplied = rl.FApply(ps, out lstReason, out fImpossible);
+
+                        // Are we at an impossible position?
 						if (fImpossible)
 						{
-							// Keep the information on the application if desired
+							// Are we gathering reasons?
 							if (IsKeepingReasons && lstReason != null)
 							{
+                                // Add the reason we failed
 							    lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
 							}
-							// The rule detected an unsolveable partial solution
+							// The rule detected an unsolveable partial solution - return false
 							return false;
 						}
 						if (fApplied)
 						{
-							// Keep the information on the application if desired
+							// Are we gathering reasons?
 							if (IsKeepingReasons && lstReason != null)
 							{
+                                // Add the reason for the application
 							    lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
 							}
 							// If we find a rule that applied, then go to the top of the rules
@@ -70,8 +77,7 @@ namespace PuzzleSolver
 				}
 			}
 
-			// We've applied as many rules as we can without ever detecting an impossible
-			// situation - that's all we can do right now - start a full backtracking search.
+			// We've applied as many rules as we can - start a full backtracking search.
 			return true;
 		}
 	}
