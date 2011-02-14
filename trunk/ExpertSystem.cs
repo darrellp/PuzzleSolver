@@ -3,16 +3,31 @@ using System.Linq;
 
 namespace PuzzleSolver
 {
-	/// <summary>
-	/// The ExpertSystem is composed of a set of rules which act on
-	/// IPartialSolution objects.  It applies those rules until none
-	/// apply or until some rule flags the partial solution as unsolvable.
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>	
+	/// The ExpertSystem is composed of a set of rules which act on IPartialSolution objects.  It
+	/// applies those rules until none apply or until some rule flags the partial solution as
+	/// unsolvable. 
 	/// </summary>
-	/// <typeparam name="TPs"></typeparam>
+	///
+	/// <remarks>	Darrellp, 2/14/2011. </remarks>
+	///
+	/// ### <typeparam name="TPs">	The type of the partial solution we're applied to. </typeparam>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	public class ExpertSystem<TPs> where TPs : IPartialSolution
 	{
 		public bool IsKeepingReasons {get; set;}
 		readonly List<IRule> _lstIRule;
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>	Constructor. </summary>
+		///
+		/// <remarks>	Darrellp, 2/14/2011. </remarks>
+		///
+		/// <param name="lstRules">		The list of rules. </param>
+		/// <param name="fKeepReasons">	true if we want to gather reasons. </param>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		public ExpertSystem(List<IRule> lstRules, bool fKeepReasons)
 		{
@@ -20,13 +35,33 @@ namespace PuzzleSolver
 			IsKeepingReasons = fKeepReasons;
 		}
 
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>	Apply the rules of this expert system without keeping reasons. </summary>
+		///
+		/// <remarks>	Darrellp, 2/14/2011. </remarks>
+		///
+		/// <param name="ps">	The partial solution we're being applied to. </param>
+		///
+		/// <returns>	Returns false if an impossible state is detected, else true. </returns>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		public bool FApply(TPs ps)
 		{
 			List<ReasonRulePair> lstrrp;
 			return FApply(ps, out lstrrp);
 		}
 
-		// Returns false if an impossible state is detected
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>	Apply the rules of this expert system. </summary>
+		///
+		/// <remarks>	Darrellp, 2/14/2011. </remarks>
+		///
+		/// <param name="ps">		The partial solution we're being applied to. </param>
+		/// <param name="lstrrp">	[out] The list of reasons for rule applications. </param>
+		///
+		/// <returns>	Returns false if an impossible state is detected, else true. </returns>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		public bool FApply(TPs ps, out List<ReasonRulePair> lstrrp)
 		{
 			// Set up
@@ -76,18 +111,6 @@ namespace PuzzleSolver
 
 			// We've applied as many rules as we can - start a full backtracking search.
 			return true;
-		}
-	}
-
-	public struct ReasonRulePair
-	{
-		public IReason Reason;
-		internal IRule Rule;
-
-		public ReasonRulePair(IReason reasonParm, IRule ruleParm)
-		{
-			Reason = reasonParm;
-			Rule = ruleParm;
 		}
 	}
 }
