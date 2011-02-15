@@ -17,6 +17,7 @@ namespace PuzzleSolver
 
 	public class ExpertSystem<TPs> where TPs : IPartialSolution
 	{
+		///<summary>True if we're gathering reasons during the backtracking process. </summary>
 		public bool IsKeepingReasons {get; set;}
 		readonly List<IRule> _lstIRule;
 

@@ -41,6 +41,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\PuzzleSolver.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -57,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Backtracker.cs" />
+    <Compile Include="BackTrackInfo.cs" />
     <Compile Include="ExpertSystem.cs" />
     <Compile Include="Generator.cs" />
     <Compile Include="IExtension.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="IReason.cs" />
     <Compile Include="IRule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReasonRulePair.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PuzzleSolverDiagram.cd" />

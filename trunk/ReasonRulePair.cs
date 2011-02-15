@@ -9,7 +9,7 @@
 	public struct ReasonRulePair
 	{
 		public IReason Reason;
-		internal IRule Rule;
+		public IRule Rule;
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>	Constructor. </summary>
