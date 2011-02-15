@@ -1,16 +1,36 @@
 ﻿namespace PuzzleSolver
 {
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>	Used to generate puzzles </summary>
+	///
+	/// <remarks>	Darrellp, 2/14/2011. </remarks>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	abstract public class Generator<T> where T : IPartialSolution, new()
 	{
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>	A list of extensions which gives a complete solutions from an empty one.. </summary>
+		///
+		/// <returns>	The list of extensions. </returns>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		protected abstract IExtension[] ExtensionList();
 		IExtension[] _arext;
 	    readonly T _psFinal = new T();
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>	Generates a puzzle based on a passed in expert system</summary>
+		///
+		/// <param name="e">	The expert system to generate from. </param>
+		///
+		/// <returns>	. </returns>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		public T Generate(ExpertSystem<T> e)
 		{
 			_arext = ExtensionList();
 
-			int iSplit = _arext.Length + 1;
+			var iSplit = _arext.Length + 1;
 
 			while (true)
 			{
@@ -46,7 +66,7 @@
 				return iUnique;
 			}
 
-			int iProbe = (iUnique + iNonUnique) / 2;
+			var iProbe = (iUnique + iNonUnique) / 2;
 			//Console.WriteLine("iProbe: {0}", iProbe);
 			if (FIsUnique(iProbe, e))
 			{
@@ -62,9 +82,9 @@
 
 		T PsAtIndex(int iPop)
 		{
-			T ps = (T)_psFinal.Clone();
+			var ps = (T)_psFinal.Clone();
 
-			for (int i = 0; i < iPop; i++)
+			for (var i = 0; i < iPop; i++)
 			{
 				ps.PsApply(_arext[i], false);
 			}
