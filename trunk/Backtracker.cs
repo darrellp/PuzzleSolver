@@ -19,7 +19,9 @@ namespace PuzzleSolver
 
 	public class Backtracker<TPs> where TPs : IPartialSolution
 	{
-		private static bool _firstTime;
+		// ReSharper disable once StaticFieldInGenericType
+		private static bool _fFirstTime;
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>	Return the first solution we can find if any and gather backtracking reasons. </summary>
 		///
@@ -39,7 +41,7 @@ namespace PuzzleSolver
 			var lstpsSolutions = new List<TPs>();
 			bti = es.IsKeepingReasons ? new BacktrackInfo(BacktrackReason.InitialEntry, null) : null;
 			psFinal = default(TPs);
-			_firstTime = true;
+			_fFirstTime = true;
 
 			// Use SearchForMultipleSolutions to search for precisely one solution
 			FSearchForMultipleSolutions(ps, es, bti, lstpsSolutions, 1);
@@ -333,8 +335,8 @@ namespace PuzzleSolver
 		private static bool TryExpertSystem(ExpertSystem<TPs> es, TPs ps, BacktrackInfo bti)
 		{
 			List<ReasonRulePair> lstrrp;
-			var fImpossible = !es.FApply(ps, _firstTime, out lstrrp);
-			_firstTime = false;
+			var fImpossible = !es.FApply(ps, _fFirstTime, out lstrrp);
+			_fFirstTime = false;
 
 			// Are we keeping backtrack reasons?
 			if (bti != null)
