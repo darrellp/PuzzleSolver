@@ -18,13 +18,13 @@ namespace PuzzleSolverTests
 			bool fSolved = Backtracker<PartialSolutionAlphametic>.FSolve(psa, es, out psaSolved);
 			Assert.IsTrue(fSolved);
 			Assert.AreEqual(psaSolved['S'], 9);
-			Assert.AreEqual(psaSolved['E'], 6);
-			Assert.AreEqual(psaSolved['N'], 7);
-			Assert.AreEqual(psaSolved['D'], 8);
+			Assert.AreEqual(psaSolved['E'], 5);
+			Assert.AreEqual(psaSolved['N'], 6);
+			Assert.AreEqual(psaSolved['D'], 7);
 			Assert.AreEqual(psaSolved['M'], 1);
 			Assert.AreEqual(psaSolved['O'], 0);
 			Assert.AreEqual(psaSolved['R'], 8);
-			Assert.AreEqual(psaSolved['Y'], 4);
+			Assert.AreEqual(psaSolved['Y'], 2);
 		}
 	}
 }
