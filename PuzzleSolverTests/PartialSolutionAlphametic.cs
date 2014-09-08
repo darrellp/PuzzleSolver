@@ -126,32 +126,22 @@ namespace PuzzleSolverTests
 
 		public List<IExtension> GetIExtensions()
 		{
-			var charToSet = '.';
-			var alreadySet = new bool[Base];
-			var extensions = new List<IExtension>();
-
 			foreach (var assoc in Mapping)
 			{
 				if (assoc.Value == NoValue)
 				{
-					if (charToSet == '.')
+					var extensions = new List<IExtension>();
+					for (byte i = 0; i < Base; i++)
 					{
-						charToSet = assoc.Key;
+						if (Possible[assoc.Key][i])
+						{
+							extensions.Add(new ExtensionAlphametic(assoc.Key, i));
+						}
 					}
-				}
-				else
-				{
-					alreadySet[assoc.Value] = true;
+					return extensions;
 				}
 			}
-			for (byte i = 0; i < Base; i++)
-			{
-				if (!alreadySet[i] && Possible[charToSet][i])
-				{
-					extensions.Add(new ExtensionAlphametic(charToSet, i));
-				}
-			}
-			return extensions;
+			return null;
 		}
 
 		public IPartialSolution PsApply(IExtension ext, bool fReturnClone)
@@ -162,7 +152,7 @@ namespace PuzzleSolverTests
 				return null;
 			}
 			var ret = new PartialSolutionAlphametic(this);
-			ret.Mapping[extAl.Char] = extAl.Value;
+			ret[extAl.Char] = extAl.Value;
 			return ret;
 		}
 
