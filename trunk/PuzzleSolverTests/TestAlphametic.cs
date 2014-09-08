@@ -25,6 +25,12 @@ namespace PuzzleSolverTests
 			Assert.AreEqual(psaSolved['O'], 0);
 			Assert.AreEqual(psaSolved['R'], 8);
 			Assert.AreEqual(psaSolved['Y'], 2);
+			psa = new PartialSolutionAlphametic("SEND", "MORE", "MMONEY");
+			fSolved = Backtracker<PartialSolutionAlphametic>.FSolve(psa, es, out psaSolved);
+			Assert.IsFalse(fSolved);
+			psa = new PartialSolutionAlphametic("A", "A", "BA");
+			fSolved = Backtracker<PartialSolutionAlphametic>.FSolve(psa, es, out psaSolved);
+			Assert.IsFalse(fSolved);
 		}
 	}
 }
