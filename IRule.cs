@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace PuzzleSolver
 {
@@ -29,6 +28,7 @@ namespace PuzzleSolver
 	/// <remarks>	Darrellp, 2/14/2011. </remarks>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	// NOTE: We ought to change this to be dependent on the PS type...
 	public interface IRule
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +57,6 @@ namespace PuzzleSolver
 		/// <returns>	true if the rule caused a change to the board, false if it made no changes. </returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		bool FApply(Object obj, out List<IReason> reason, out bool fImpossible);
+		bool FApply(IPartialSolution obj, out List<IReason> reason, out bool fImpossible);
 	}
 }

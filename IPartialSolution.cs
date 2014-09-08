@@ -50,17 +50,6 @@ namespace PuzzleSolver
 		IPartialSolution PsApply(IExtension ext, bool fReturnClone);
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// <summary>	
-		/// Sometimes between the time we generate an extension and the time we try to apply it,
-		/// information may arise to make that extension obsolete.  If so, ExtensionFailed can return false. 
-		/// </summary>
-		///
-		/// <param name="ext">	The extension to be applied. </param>
-		////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		void ExtensionFailed(IExtension ext);
-
-		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>	If this represents a solution, say so! </summary>
 		///
 		/// <returns>	true if this partial solution is a solution to the problem at hand. </returns>

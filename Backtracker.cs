@@ -19,6 +19,7 @@ namespace PuzzleSolver
 
 	public class Backtracker<TPs> where TPs : IPartialSolution
 	{
+		private static bool _firstTime;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>	Return the first solution we can find if any and gather backtracking reasons. </summary>
 		///
@@ -36,8 +37,9 @@ namespace PuzzleSolver
 		{
 			// Set up
 			var lstpsSolutions = new List<TPs>();
-			bti = new BacktrackInfo(BacktrackReason.InitialEntry, null);
+			bti = es.IsKeepingReasons ? new BacktrackInfo(BacktrackReason.InitialEntry, null) : null;
 			psFinal = default(TPs);
+			_firstTime = true;
 
 			// Use SearchForMultipleSolutions to search for precisely one solution
 			FSearchForMultipleSolutions(ps, es, bti, lstpsSolutions, 1);
@@ -331,7 +333,8 @@ namespace PuzzleSolver
 		private static bool TryExpertSystem(ExpertSystem<TPs> es, TPs ps, BacktrackInfo bti)
 		{
 			List<ReasonRulePair> lstrrp;
-			var fImpossible = es.FApply(ps, out lstrrp);
+			var fImpossible = !es.FApply(ps, _firstTime, out lstrrp);
+			_firstTime = false;
 
 			// Are we keeping backtrack reasons?
 			if (bti != null)
@@ -341,7 +344,7 @@ namespace PuzzleSolver
 			}
 
 			// Did we reach an impossible situation?
-			if (!fImpossible)
+			if (fImpossible)
 			{
 				// Are we keeping backtracing reasons?
 				if (bti != null)
