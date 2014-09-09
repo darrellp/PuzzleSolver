@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="ExtensionAlphametic.cs" />
     <Compile Include="PartialSolutionAlphametic.cs" />
+    <Compile Include="ReasonAlphametic.cs" />
     <Compile Include="RulesAlphametic.cs" />
     <Compile Include="TestAlphametic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

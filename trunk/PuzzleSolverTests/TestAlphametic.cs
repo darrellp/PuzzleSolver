@@ -32,5 +32,19 @@ namespace PuzzleSolverTests
 			fSolved = Backtracker<PartialSolutionAlphametic>.FSolve(psa, es, out psaSolved);
 			Assert.IsFalse(fSolved);
 		}
+
+		[TestMethod]
+		public void TestReasons()
+		{
+			var psa = new PartialSolutionAlphametic("SEND", "MORE", "MONEY");
+			var es = new ExpertSystem<PartialSolutionAlphametic>(
+				RulesAlphametic.Rules,
+				RulesAlphametic.OneTimeRules,
+				true);
+			PartialSolutionAlphametic psaSolved;
+			BacktrackInfo bti;
+			bool fSolved = Backtracker<PartialSolutionAlphametic>.FSolve(psa, es, out psaSolved, out bti);
+			Assert.IsTrue(fSolved);
+		}
 	}
 }
