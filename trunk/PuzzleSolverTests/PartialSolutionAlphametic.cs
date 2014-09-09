@@ -7,10 +7,10 @@ namespace PuzzleSolverTests
 {
 	internal enum Member
 	{
+		Carry,
 		Add1,
 		Add2,
 		Sum,
-		Carry,
 		MemberCount
 	};
 	
@@ -52,6 +52,15 @@ namespace PuzzleSolverTests
 					Possible[ch][value] = false;
 				}
 			}
+		}
+
+		internal ColumnValues GetColumnValues(int iColumn)
+		{
+			return new ColumnValues(
+				ValueAt(Member.Carry, iColumn),
+				ValueAt(Member.Add1, iColumn),
+				ValueAt(Member.Add2, iColumn),
+				ValueAt(Member.Sum, iColumn));
 		}
 
 		// ipos == 0 means the ones column...

@@ -50,6 +50,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ColumnValues.cs" />
     <Compile Include="ExtensionAlphametic.cs" />
     <Compile Include="PartialSolutionAlphametic.cs" />
     <Compile Include="ReasonAlphametic.cs" />
