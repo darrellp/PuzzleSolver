@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using PuzzleSolver;
 
 namespace PuzzleSolverTests
@@ -132,10 +131,6 @@ namespace PuzzleSolverTests
 				{
 					Member notSet;
 					var cv = psa.GetColumnValues(i);
-					//var add1Val = psa.ValueAt(Member.Add1, i);
-					//var add2Val = psa.ValueAt(Member.Add2, i);
-					//var carryVal = psa.ValueAt(Member.Carry, i);
-					//var sumVal = psa.ValueAt(Member.Sum, i);
 
 					// If we found two unset values in this column just continue on to the next
 					if (CheckSetValues(cv, out notSet))
