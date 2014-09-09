@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using PuzzleSolver;
 
 namespace PuzzleSolverTests
@@ -49,11 +50,19 @@ namespace PuzzleSolverTests
 			public bool FApply(IPartialSolution obj, out List<IReason> reason, out bool fImpossible)
 			{
 				var psa = (PartialSolutionAlphametic)obj;
-				psa.SetImpossible(psa.Add1[0], 0);
-				psa.SetImpossible(psa.Add2[0], 0);
-				psa.SetImpossible(psa.Sum[0], 0);
+				char chAdd1 = psa.Add1[0];
+				char chAdd2 = psa.Add2[0];
+				char chSum = psa.Sum[0];
+				psa.SetImpossible(chAdd1, 0);
+				psa.SetImpossible(chAdd2, 0);
+				psa.SetImpossible(chSum, 0);
 				fImpossible = false;
-				reason = null;
+				reason = new List<IReason>
+				{
+					new DisableLeadingZero(chAdd1),
+					new DisableLeadingZero(chAdd2),
+					new DisableLeadingZero(chSum)
+				};
 				return true;
 			}
 		}
@@ -89,6 +98,13 @@ namespace PuzzleSolverTests
 						psa.Add2.Length == psa.Sum.Length - 1);
 
 				}
+				if (fImpossible)
+				{
+					reason = new List<IReason>
+					{
+						new ImpossibleSizes()
+					};
+				}
 				return false;
 			}
 		}
@@ -106,7 +122,7 @@ namespace PuzzleSolverTests
 				var psa = (PartialSolutionAlphametic) obj;
 
 				fImpossible = false;
-				reason = null;
+				reason = new List<IReason>();
 				var ret = false;
 
 				// For each column in the sum
@@ -116,12 +132,18 @@ namespace PuzzleSolverTests
 				{
 					var notSet = Member.MemberCount;
 					bool noAction = false;
+					var add1Val = psa.ValueAt(Member.Add1, i);
+					var add2Val = psa.ValueAt(Member.Add2, i);
+					var carryVal = psa.ValueAt(Member.Carry, i);
+					var sumVal = psa.ValueAt(Member.Sum, i);
+					// Following must be in order of Members enum...
+					var values = new Byte[] {add1Val, add2Val, sumVal, carryVal};
 
 					// For each member of the sum
 					for (var memberVal = 0; memberVal < (int)Member.MemberCount; memberVal++)
 					{
 						var member = (Member) memberVal;
-						if (psa.ValueAt(member, i) == PartialSolutionAlphametic.NoValue)
+						if (values[memberVal] == PartialSolutionAlphametic.NoValue)
 						{
 							if (notSet != Member.MemberCount)
 							{
@@ -146,23 +168,24 @@ namespace PuzzleSolverTests
 					// If all members were set, check them to ensure they add properly
 					if (notSet == Member.MemberCount)
 					{
-						var sum = psa.ValueAt(Member.Add1, i) +
-						          psa.ValueAt(Member.Add2, i) +
-						          psa.ValueAt(Member.Carry, i);
-						if (sum % 10 != psa.ValueAt(Member.Sum, i))
+						var sum = add1Val + add2Val + carryVal;
+						if (sum % 10 != sumVal)
 						{
 							// Didn't pan out - this is a dead end.
+							reason.Add(new ImpossibleSum(i, carryVal, add1Val, add2Val, sumVal));
 							fImpossible = true;
 							return false;
 						}
 						var nextCarry = psa.ValueAt(Member.Carry, i + 1);
 						if (nextCarry == PartialSolutionAlphametic.NoValue)
 						{
+							reason.Add(new GenerateCarry(i + 1, (byte)(sum / 10)));
 							psa.Carries[i + 1] = (byte)(sum / 10);
 						}
 						else if (nextCarry != sum / 10)
 						{
 							// Carries don't match correctly
+							reason.Add(new ImpossibleCarry(i + 1, (byte)(sum / 10)));
 							fImpossible = true;
 							return false;
 						}
@@ -172,52 +195,46 @@ namespace PuzzleSolverTests
 						ret = true;
 						if (notSet == Member.Carry)
 						{
-							psa.Carries[i] =
-								(byte)((psa.ValueAt(Member.Sum, i) -
-								 psa.ValueAt(Member.Add1, i) -
-								 psa.ValueAt(Member.Add2, i) + 20) % 10);
+							psa.Carries[i] = (byte)((sumVal - add1Val - add2Val + 20) % 10);
 							if (psa.Carries[i] != 0 && psa.Carries[i] != 1)
 							{
+								reason.Add(new ImpossibleSum(i, carryVal, add1Val, add2Val, sumVal));
 								fImpossible = true;
 								return false;
 							}
+							reason.Add(new ReasonSum(i, carryVal, add1Val, add2Val, sumVal, psa.Carries[i]));
 						}
 						else
 						{
-							char ch = '\0';
-							byte val = PartialSolutionAlphametic.NoValue;
+							var ch = '\0';
+							var val = PartialSolutionAlphametic.NoValue;
 
 							// Exactly one unset member so we can calculate it's value
 							switch (notSet)
 							{
 								case Member.Add1:
 									ch = psa.Add1[psa.Add1.Length - 1 - i];
-									val =
-										(byte)((psa.ValueAt(Member.Sum, i) -
-										 psa.ValueAt(Member.Add2, i) -
-										 psa.ValueAt(Member.Carry, i) + 20) % 10);
+									val = (byte)((sumVal - add2Val - carryVal + 20) % 10);
 									break;
+
 								case Member.Add2:
 									ch = psa.Add2[psa.Add2.Length - 1 - i];
-									val =
-										(byte)((psa.ValueAt(Member.Sum, i) -
-										 psa.ValueAt(Member.Add1, i) -
-										 psa.ValueAt(Member.Carry, i) + 20) % 10);
+									val = (byte)((sumVal - add1Val - carryVal + 20) % 10);
 									break;
 
 								case Member.Sum:
 									ch = psa.Sum[psa.Sum.Length - 1 - i];
 									val =
-										(byte)((psa.ValueAt(Member.Add1, i) +
-										 psa.ValueAt(Member.Add2, i) +
-										 psa.ValueAt(Member.Carry, i)) % 10);
+										(byte)((add1Val + add2Val + carryVal) % 10);
 									break;
 							}
 							if (!psa.Possible[ch][val])
 							{
+								reason.Add(new ImpossibleSum(i, carryVal, add1Val, add2Val, sumVal));
 								fImpossible = true;
 								return false;
 							}
+							reason.Add(new ReasonSum(i, carryVal, add1Val, add2Val, sumVal, val));
 							psa[ch] = val;
 
 						}
@@ -228,11 +245,13 @@ namespace PuzzleSolverTests
 						var nextCarry = psa.ValueAt(Member.Carry, i + 1);
 						if (nextCarry == PartialSolutionAlphametic.NoValue)
 						{
+							reason.Add(new GenerateCarry(i + 1, (byte)(sum / 10)));
 							psa.Carries[i + 1] = (byte)(sum / 10);
 						}
 						else if (nextCarry != sum / 10)
 						{
 							// Carries don't match correctly
+							reason.Add(new ImpossibleCarry(i + 1, (byte)(sum / 10)));
 							fImpossible = true;
 							return false;
 						}

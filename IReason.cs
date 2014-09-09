@@ -14,4 +14,16 @@ namespace PuzzleSolver
 		bool HasExtension();
 		List<IExtension> GetExtensions();
 	}
+
+	public class ReasonBase : IReason
+	{
+		public virtual bool HasExtension()
+		{
+			return false;
+		}
+		public virtual List<IExtension> GetExtensions()
+		{
+			return null;
+		}
+	}
 }
