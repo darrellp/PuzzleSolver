@@ -130,33 +130,15 @@ namespace PuzzleSolverTests
 				// carries move to the left...
 				for (var i = 0; i < psa.Sum.Length; i++)
 				{
-					var notSet = Member.MemberCount;
-					bool noAction = false;
-					var add1Val = psa.ValueAt(Member.Add1, i);
-					var add2Val = psa.ValueAt(Member.Add2, i);
-					var carryVal = psa.ValueAt(Member.Carry, i);
-					var sumVal = psa.ValueAt(Member.Sum, i);
-					// Following must be in order of Members enum...
-					var values = new Byte[] {add1Val, add2Val, sumVal, carryVal};
-
-					// For each member of the sum
-					for (var memberVal = 0; memberVal < (int)Member.MemberCount; memberVal++)
-					{
-						var member = (Member) memberVal;
-						if (values[memberVal] == PartialSolutionAlphametic.NoValue)
-						{
-							if (notSet != Member.MemberCount)
-							{
-								// Found two unset chars so nothing to do in this column
-								noAction = true;
-								break;
-							}
-							notSet = member;
-						}
-					}
+					Member notSet;
+					var cv = psa.GetColumnValues(i);
+					//var add1Val = psa.ValueAt(Member.Add1, i);
+					//var add2Val = psa.ValueAt(Member.Add2, i);
+					//var carryVal = psa.ValueAt(Member.Carry, i);
+					//var sumVal = psa.ValueAt(Member.Sum, i);
 
 					// If we found two unset values in this column just continue on to the next
-					if (noAction)
+					if (CheckSetValues(cv, out notSet))
 					{
 						continue;
 					}
@@ -168,25 +150,9 @@ namespace PuzzleSolverTests
 					// If all members were set, check them to ensure they add properly
 					if (notSet == Member.MemberCount)
 					{
-						var sum = add1Val + add2Val + carryVal;
-						if (sum % 10 != sumVal)
+						fImpossible = CheckAddition(reason, cv, psa, i);
+						if (fImpossible)
 						{
-							// Didn't pan out - this is a dead end.
-							reason.Add(new ImpossibleSum(i, carryVal, add1Val, add2Val, sumVal));
-							fImpossible = true;
-							return false;
-						}
-						var nextCarry = psa.ValueAt(Member.Carry, i + 1);
-						if (nextCarry == PartialSolutionAlphametic.NoValue)
-						{
-							reason.Add(new GenerateCarry(i + 1, (byte)(sum / 10)));
-							psa.Carries[i + 1] = (byte)(sum / 10);
-						}
-						else if (nextCarry != sum / 10)
-						{
-							// Carries don't match correctly
-							reason.Add(new ImpossibleCarry(i + 1, (byte)(sum / 10)));
-							fImpossible = true;
 							return false;
 						}
 					}
@@ -195,46 +161,28 @@ namespace PuzzleSolverTests
 						ret = true;
 						if (notSet == Member.Carry)
 						{
-							psa.Carries[i] = (byte)((sumVal - add1Val - add2Val + 20) % 10);
+							psa.Carries[i] = (byte)((cv.Sum - cv.Add1 - cv.Add2 + 20) % 10);
 							if (psa.Carries[i] != 0 && psa.Carries[i] != 1)
 							{
-								reason.Add(new ImpossibleSum(i, carryVal, add1Val, add2Val, sumVal));
+								reason.Add(new ImpossibleSum(i, cv.Carry, cv.Add1, cv.Add2, cv.Sum));
 								fImpossible = true;
 								return false;
 							}
-							reason.Add(new ReasonSum(i, carryVal, add1Val, add2Val, sumVal, psa.Carries[i]));
+							reason.Add(new ReasonSum(i, cv.Carry, cv.Add1, cv.Add2, cv.Sum, psa.Carries[i]));
 						}
 						else
 						{
-							var ch = '\0';
-							var val = PartialSolutionAlphametic.NoValue;
-
 							// Exactly one unset member so we can calculate it's value
-							switch (notSet)
-							{
-								case Member.Add1:
-									ch = psa.Add1[psa.Add1.Length - 1 - i];
-									val = (byte)((sumVal - add2Val - carryVal + 20) % 10);
-									break;
+							byte val;
 
-								case Member.Add2:
-									ch = psa.Add2[psa.Add2.Length - 1 - i];
-									val = (byte)((sumVal - add1Val - carryVal + 20) % 10);
-									break;
-
-								case Member.Sum:
-									ch = psa.Sum[psa.Sum.Length - 1 - i];
-									val =
-										(byte)((add1Val + add2Val + carryVal) % 10);
-									break;
-							}
+							var ch = DetermineUnsetValue(notSet, psa, i, cv, out val);
 							if (!psa.Possible[ch][val])
 							{
-								reason.Add(new ImpossibleSum(i, carryVal, add1Val, add2Val, sumVal));
+								reason.Add(new ImpossibleSum(i, cv.Carry, cv.Add1, cv.Add2, cv.Sum));
 								fImpossible = true;
 								return false;
 							}
-							reason.Add(new ReasonSum(i, carryVal, add1Val, add2Val, sumVal, val));
+							reason.Add(new ReasonSum(i, cv.Carry, cv.Add1, cv.Add2, cv.Sum, val));
 							psa[ch] = val;
 
 						}
@@ -258,6 +206,78 @@ namespace PuzzleSolverTests
 					}
 				}
 				return ret;
+			}
+
+			private static char DetermineUnsetValue(Member notSet, PartialSolutionAlphametic psa, int i, ColumnValues cv, out byte val)
+			{
+				char ch = '\0';
+				val = PartialSolutionAlphametic.NoValue;
+				switch (notSet)
+				{
+					case Member.Add1:
+						ch = psa.Add1[psa.Add1.Length - 1 - i];
+						val = (byte) ((cv.Sum - cv.Add2 - cv.Carry + 20) % 10);
+						break;
+
+					case Member.Add2:
+						ch = psa.Add2[psa.Add2.Length - 1 - i];
+						val = (byte) ((cv.Sum - cv.Add1 - cv.Carry + 20) % 10);
+						break;
+
+					case Member.Sum:
+						ch = psa.Sum[psa.Sum.Length - 1 - i];
+						val = (byte) ((cv.Add1 + cv.Add2 + cv.Carry) % 10);
+						break;
+				}
+				return ch;
+			}
+
+			private static bool CheckAddition(List<IReason> reason, ColumnValues cv, PartialSolutionAlphametic psa,
+				int i)
+			{
+				bool fImpossible = false;
+				var sum = cv.Add1 + cv.Add2 + cv.Carry;
+				var nextCarry = psa.ValueAt(Member.Carry, i + 1);
+				if (sum % 10 != cv.Sum)
+				{
+					// Didn't pan out - this is a dead end.
+					reason.Add(new ImpossibleSum(i, cv.Carry, cv.Add1, cv.Add2, cv.Sum));
+					fImpossible = true;
+				}
+				else if (nextCarry == PartialSolutionAlphametic.NoValue)
+				{
+					reason.Add(new GenerateCarry(i + 1, (byte) (sum / 10)));
+					psa.Carries[i + 1] = (byte) (sum / 10);
+				}
+				else if (nextCarry != sum / 10)
+				{
+					// Carries don't match correctly
+					reason.Add(new ImpossibleCarry(i + 1, (byte) (sum / 10)));
+					fImpossible = true;
+				}
+				return fImpossible;
+			}
+
+			private static bool CheckSetValues(ColumnValues values, out Member notSet)
+			{
+				var noAction = false;
+				notSet = Member.MemberCount;
+
+				// For each member of the sum
+				for (var memberVal = 0; memberVal < (int)Member.MemberCount; memberVal++)
+				{
+					if (values[memberVal] == PartialSolutionAlphametic.NoValue)
+					{
+						if (notSet != Member.MemberCount)
+						{
+							// Found two unset chars so nothing to do in this column
+							noAction = true;
+							break;
+						}
+						notSet = (Member)memberVal;
+					}
+				}
+				return noAction;
 			}
 		}
 	}
