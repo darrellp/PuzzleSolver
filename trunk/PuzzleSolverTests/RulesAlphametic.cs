@@ -43,7 +43,7 @@ namespace PuzzleSolverTests
 		{
 			public bool FTrigger(IPartialSolution ps)
 			{
-				return !((PartialSolutionAlphametic)ps).LeadingZeroesChecked;
+				return true;
 			}
 
 			public bool FApply(IPartialSolution obj, out List<IReason> reason, out bool fImpossible)
@@ -70,15 +70,13 @@ namespace PuzzleSolverTests
 		{
 			public bool FTrigger(IPartialSolution ps)
 			{
-				return !((PartialSolutionAlphametic)ps).LeadingZeroesChecked;
+				return true;
 			}
 
 			public bool FApply(IPartialSolution obj, out List<IReason> reason, out bool fImpossible)
 			{
 				var psa = (PartialSolutionAlphametic)obj;
 				reason = null;
-
-				psa.LeadingZeroesChecked = true;
 
 				// Neither of the addends can be longer than the sum
 				if (psa.Add1.Length > psa.Sum.Length ||
