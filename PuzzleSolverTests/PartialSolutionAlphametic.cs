@@ -24,7 +24,6 @@ namespace PuzzleSolverTests
 		public Dictionary<char, byte> Mapping { get; private set; }
 		public Dictionary<char, bool[]> Possible { get; private set; }
 		public byte[] Carries { get; private set; }
-		public bool LeadingZeroesChecked { get; set; }
 
 		internal const int Base = 10;
 		internal const byte NoValue = Base;
