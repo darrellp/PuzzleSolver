@@ -22,7 +22,7 @@ namespace PuzzleSolverTests
 		public string Add2 { get; private set; }
 		public string Sum { get; private set; }
 		public Dictionary<char, byte> Mapping { get; private set; }
-		public Dictionary<char, bool[]> Possible { get; private set; }
+		public Dictionary<char, Possibles> Possible { get; private set; }
 		public byte[] Carries { get; private set; }
 
 		internal const int Base = 10;
@@ -42,13 +42,10 @@ namespace PuzzleSolverTests
 					throw new InvalidOperationException("Setting previously set digit to a different value");
 				}
 				Mapping[key] = value;
-				for (var i = 0; i < Base; i++)
-				{
-					Possible[key][i] = i == value;
-				}
+				Possible[key] = new Possibles(1 << value);
 				foreach (var ch in Mapping.Keys.Where(ch => ch != key))
 				{
-					Possible[ch][value] = false;
+					Possible[ch].Disallow(value);
 				}
 			}
 		}
@@ -94,7 +91,7 @@ namespace PuzzleSolverTests
 			Add2 = add2;
 			Sum = sum;
 			Mapping = chars.ToDictionary(c => c, c => NoValue);
-			Possible = chars.ToDictionary(c => c, c => Enumerable.Repeat(true, Base).ToArray());
+			Possible = chars.ToDictionary(c => c, c => new Possibles(c));
 			Carries = Enumerable.Repeat(NoValue, Sum.Length).ToArray();
 			// No carry into ones digit
 			Carries[0] = 0;
@@ -104,7 +101,7 @@ namespace PuzzleSolverTests
 		{
 			Mapping = new Dictionary<char, byte>(psa.Mapping);
 			Carries = (byte[])psa.Carries.Clone();
-			Possible = psa.Possible.ToDictionary(a => a.Key, a => (bool[]) a.Value.Clone());
+			Possible = psa.Possible.ToDictionary(a => a.Key, a => new Possibles(a.Value));
 			Add1 = psa.Add1;
 			Add2 = psa.Add2;
 			Sum = psa.Sum;
@@ -112,16 +109,14 @@ namespace PuzzleSolverTests
 
 		public bool SetImpossible(char c, byte val)
 		{
-			Possible[c][val] = false;
-			var count = Possible[c].Count(f => f);
-			if (count == 0)
+			Possible[c].Disallow(val);
+			if (Possible[c].Impossible)
 			{
 				return false;
 			}
-			if (count == 1)
+			if (Possible[c].Fixed)
 			{
-				var n = Possible[c].Select((f, index) => index).First();
-				this[c] = (byte)n;
+				this[c] = Possible[c].LowestValue();
 			}
 			return true;
 		}
@@ -129,7 +124,7 @@ namespace PuzzleSolverTests
 		public bool IdenticalTo(IPartialSolution ps)
 		{
 			var psA = ps as PartialSolutionAlphametic;
-			return psA != null && Possible.All(assoc => psA.Possible[assoc.Key].SequenceEqual(assoc.Value));
+			return psA != null && Possible.All(assoc => psA.Possible[assoc.Key].Values == assoc.Value.Values);
 		}
 
 		public List<IExtension> GetIExtensions()
@@ -141,7 +136,7 @@ namespace PuzzleSolverTests
 					var extensions = new List<IExtension>();
 					for (byte i = 0; i < Base; i++)
 					{
-						if (Possible[assoc.Key][i])
+						if (Possible[assoc.Key].IsPossible(i))
 						{
 							extensions.Add(new ExtensionAlphametic(assoc.Key, i));
 						}
