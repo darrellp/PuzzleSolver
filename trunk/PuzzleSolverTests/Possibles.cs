@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace PuzzleSolverTests
@@ -6,11 +8,11 @@ namespace PuzzleSolverTests
 	/// <summary>
 	/// Class for keeping track of the possibilities for a given value
 	/// </summary>
-	struct Possibles
+	class Possibles
 	{
-		public string Name;
-		public int Values;
-		public bool IsCarry;
+		public string Name { get; private set; }
+		public int Values { get; private set; }
+		public bool IsCarry { get; private set; }
 
 		public bool Impossible
 		{
@@ -36,11 +38,18 @@ namespace PuzzleSolverTests
 			Name = name;
 		}
 
+		public Possibles(char name, int values = 0x3ff, bool isCarry = false) : this(name.ToString(), values, isCarry) { }
+		
 		public Possibles(Possibles possibles)
 		{
 			Name = possibles.Name;
 			Values = possibles.Values;
 			IsCarry = possibles.IsCarry;
+		}
+
+		public bool IsPossible(int n)
+		{
+			return ((1 << n) & Values) != 0;
 		}
 
 		public static Possibles Carry(int column, int values = 0x3)
@@ -54,12 +63,31 @@ namespace PuzzleSolverTests
 			{
 				throw new ArgumentException("Invalid value in Disallow");
 			}
-			Values = Values & ~(1 << i);
+			Values &= ~(1 << i);
+		}
+
+		public byte LowestValue()
+		{
+			var mask = 1;
+			for (byte i = 0; i < 10; i++)
+			{
+				if ((Values & mask) != 1)
+				{
+					return i;
+				}
+				mask <<= 1;
+			}
+			return (byte)PartialSolutionAlphametic.NoValue;
 		}
 
 		public void Set(int p)
 		{
 			Values &= p;
+		}
+
+		static public int ToValuesInt(List<int> vals)
+		{
+			return vals.Aggregate(0, (current, val) => current | (1 << val));
 		}
 
 		public static int Add(int p1, int p2, bool subtract = false)

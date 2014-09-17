@@ -169,7 +169,7 @@ namespace PuzzleSolverTests
 							byte val;
 
 							var ch = DetermineUnsetValue(notSet, psa, i, cv, out val);
-							if (!psa.Possible[ch][val])
+							if (!psa.Possible[ch].IsPossible(val))
 							{
 								reason.Add(new ImpossibleSum(i, cv.Carry, cv.Add1, cv.Add2, cv.Sum));
 								fImpossible = true;
