@@ -8,6 +8,11 @@ namespace PuzzleSolverTests
 	/// <summary>
 	/// Class for keeping track of the possibilities for a given value
 	/// </summary>
+	/// <remarks>
+	/// Should these be structs?  If they are then each time we want to change one we have to build a
+	/// brand new one, return it and the caller has to replace it wherever it came from whereas if they're
+	/// objects, they just change themselves in place.  I think the latter is better since generally we'll
+	/// only allocate a few of them.  Then again, when cloning PSs they have to be reproduced.  Hmm...</remarks>
 	class Possibles
 	{
 		public string Name { get; private set; }
