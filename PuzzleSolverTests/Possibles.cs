@@ -97,8 +97,17 @@ namespace PuzzleSolverTests
 
 		public static int Add(int p1, int p2, bool subtract = false)
 		{
+			bool fCarries0, fCarries1;
+			return Add(p1, p2, out fCarries0, out fCarries1, subtract);
+		}
+
+		public static int Add(int p1, int p2, out bool fCarries0, out bool fCarries1, bool subtract = false)
+		{
 			var add = p2;
 			var sum = 0;
+			fCarries0 = true;
+			fCarries1 = true;
+
 			// Take care of common case...
 			if (p1 == 0x3ff || p2 == 0x3ff)
 			{
@@ -108,16 +117,48 @@ namespace PuzzleSolverTests
 				subtract ? mask > 0 : mask < (1 << 10);
 				mask = subtract ? (mask >> 1) : (mask << 1), add <<= 1)
 			{
-				if ((p1 & mask) != 0)
+				if ((p1 & mask) == 0) continue;
+
+				// If any of the sums are less than ten then we can't guarantee a carry of 1
+				if ((add & 0x3ff) != 0)
 				{
-					sum |= add;
+					fCarries1 = false;
 				}
+				// Likewise, if any of the sums are 10 or greater then we can't guarantee a carry of 0
+				else if ((add & ~0x3ff) != 0)
+				{
+					fCarries0 = false;
+				}
+				sum |= add;
 			}
 			return 0x3ff & (sum | (sum >> 10));
 		}
 
 		public static int AddCarry(int n, int c, bool subtract)
 		{
+			bool fCarry0, fCarry1;
+			return AddCarry(n, c, out fCarry0, out fCarry1, subtract);
+
+		}
+
+		public static int AddCarry(int n, int c, out bool fCarry0, out bool fCarry1, bool subtract)
+		{
+			fCarry0 = fCarry1 = false;
+
+			if (subtract)
+			{
+				// We will absolutely carry 0 if either n > 0 or if the carry is fixed at 0
+				fCarry0 = ((n & 1) == 0) || c == 1;
+				// We will absolutely carry 1 only if n == 0 and c == 1
+				fCarry1 = n == 0x1 && c == 0x2;
+			}
+			else
+			{
+				// We will absolutely carry 0 if either n < 9 or if we are fixed at 0
+				fCarry0 = (n & 0x200) == 0 || c == 1;
+				// We will absolutely carry 1 only if n == 9 and c == 1 (well, of course, the bit versions of these)
+				fCarry1 = n == 0x200 && c == 0x2;
+			}
 			switch (c)
 			{
 				case 0:
@@ -148,34 +189,58 @@ namespace PuzzleSolverTests
 
 		public int Add(Possibles possibles, bool subtract = false)
 		{
+			bool fCarry0, fCarry1;
+			return Add(possibles, out fCarry0, out fCarry1, subtract);
+		}
+
+		public int Add(Possibles possibles, out bool fCarries0, out bool fCarries1, bool subtract = false)
+		{
 			if (IsCarry)
 			{
-				return AddCarry(possibles.Values, Values, subtract);
+				return AddCarry(possibles.Values, Values, out fCarries0, out fCarries1, subtract);
 			}
 			if (possibles.IsCarry)
 			{
-				return AddCarry(Values, possibles.Values, subtract);
+				return AddCarry(Values, possibles.Values, out fCarries0, out fCarries1, subtract);
 			}
-			return Add(Values, possibles.Values, subtract);
+			return Add(Values, possibles.Values, out fCarries0, out fCarries1, subtract);
 		}
 
 		public int Add(int values, bool subtract = false)
 		{
+			bool fCarry0, fCarry1;
+			return Add(values, out fCarry0, out fCarry1, subtract);
+		}
+
+		public int Add(int values, out bool fCarries0, out bool fCarries1, bool subtract = false)
+		{
 			if (IsCarry)
 			{
-				return AddCarry(values, Values, subtract);
+				return AddCarry(values, Values, out fCarries0, out fCarries1, subtract);
 			}
-			return Add(Values, values, subtract);
+			return Add(Values, values, out fCarries0, out fCarries1, subtract);
 		}
 
 		public int Subtract(Possibles possibles)
 		{
-			return Add(possibles, true);
+			bool fCarry0, fCarry1;
+			return Subtract(possibles, out fCarry0, out fCarry1);
+		}
+
+		public int Subtract(Possibles possibles, out bool fCarries0, out bool fCarries1)
+		{
+			return Add(possibles, out fCarries0, out fCarries1, true);
 		}
 
 		public int Subtract(int values)
 		{
-			return Add(values, true);
+			bool fCarries0, fCarries1;
+			return Subtract(values, out fCarries0, out fCarries1);
+		}
+
+		public int Subtract(int values, out bool fCarries0, out bool fCarries1)
+		{
+			return Add(values, out fCarries0, out fCarries1, true);
 		}
 
 		public override string ToString()

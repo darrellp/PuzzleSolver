@@ -21,7 +21,7 @@ namespace PuzzleSolverTests
 			{
 				return new List<IRule>
 				{
-					new ApplyAdditionRule(),
+					new ApplyAdditionRuleOld(),
 				};
 			}
 		}
@@ -106,8 +106,50 @@ namespace PuzzleSolverTests
 			}
 		}
 
+		class ApplyAdditionRule : IRule 
+		{
+			public bool FTrigger(IPartialSolution ps)
+			{
+				return true;
+			}
+
+			public bool FApply(IPartialSolution obj, out List<IReason> reason, out bool fImpossible)
+			{
+				var psa = (PartialSolutionAlphametic) obj;
+
+				fImpossible = false;
+				reason = new List<IReason>();
+				var ret = false;
+
+				// For each column in the sum
+				// We go backward through the sum to take advantage of the fact that
+				// carries move to the left...
+				for (var i = 0; i < psa.Sum.Length; i++)
+				{
+					var sum = psa.ValueAt(Member.Add1, i) +
+									psa.ValueAt(Member.Add2, i) +
+									psa.ValueAt(Member.Carry, i);
+
+					var nextCarry = psa.ValueAt(Member.Carry, i + 1);
+					if (nextCarry == PartialSolutionAlphametic.NoValue)
+					{
+						reason.Add(new GenerateCarry(i + 1, (byte)(sum / 10)));
+						psa.Carries[i + 1] = (byte)(sum / 10);
+					}
+					else if (nextCarry != sum / 10)
+					{
+						// Carries don't match correctly
+						reason.Add(new ImpossibleCarry(i + 1, (byte)(sum / 10)));
+						fImpossible = true;
+						return false;
+					}
+				}
+				return ret;
+			}
+		}
+
 		// The main rule that checks that the addition is correct.
-		class ApplyAdditionRule : IRule
+		class ApplyAdditionRuleOld : IRule
 		{
 			public bool FTrigger(IPartialSolution ps)
 			{
