@@ -81,7 +81,7 @@ namespace PuzzleSolver
 		///
 		/// <returns>	true if exactly one solution exists, false otherwise. </returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
-		/// 
+
 		static public bool FUnique(TPs ps, ExpertSystem<TPs> es)
 		{
 			var lstpsSolutions = new List<TPs>();
@@ -217,7 +217,7 @@ namespace PuzzleSolver
 		///<returns>	An evaluation of how valuable the current board position is. </returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		static private int EvaluateBoard(TPs ps, int cPlys, BacktrackInfo bti)
+		public static int EvaluateBoard(TPs ps, int cPlys, BacktrackInfo bti)
 		{
 			// Get the list of potential moves from this partial board
 			var lstIExtensions = ps.GetIExtensions();
@@ -269,14 +269,7 @@ namespace PuzzleSolver
 				// Apply the current extension
 				var psCur = (TPs)ps.PsApply(ext, true);
 
-				if (psCur.FContinueEvaluation(cPlys))
-				{
-					iVal = Math.Max(iVal, EvaluateBoard(ps, cPlys + 1, btiCur));
-				}
-				else
-				{
-					iVal = Math.Max(iVal, ps.Evaluate());
-				}
+				iVal = Math.Max(iVal, psCur.FContinueEvaluation(cPlys) ? EvaluateBoard(ps, cPlys + 1, btiCur) : ps.Evaluate());
 			}
 
 			return iVal;
