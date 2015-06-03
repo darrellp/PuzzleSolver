@@ -75,7 +75,7 @@ namespace PuzzleSolver
 			while (fApplied)
 			{
 				fApplied = false;
-				var ruleList = firstTime ? _lstOneTimeRules : _lstIRule;
+				var ruleList = firstTime && _lstOneTimeRules != null ? _lstOneTimeRules : _lstIRule;
 
 				// For every applicable rule
 				foreach (var rl in ruleList.Where(rl => rl.FTrigger(ps)))
@@ -90,7 +90,7 @@ namespace PuzzleSolver
 					if (fImpossible)
 					{
 						// Are we gathering reasons?
-						if (lstrrp != null)
+						if (lstrrp != null && lstReason != null)
 						{
 							// Add the reason we failed
 							lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
