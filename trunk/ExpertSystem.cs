@@ -86,26 +86,34 @@ namespace PuzzleSolver
 					// Apply the rule
 					fApplied = rl.FApply(ps, out lstReason, out fImpossible);
 
+
+					// Are we gathering reasons?
+					if (lstrrp != null && lstReason != null)
+					{
+						// Assume all rules applied
+						foreach (var reason in lstReason)
+						{
+							reason.Applied = true;
+						}
+						// Add the new reasons
+						lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
+					}
+
 					// Are we at an impossible position?
 					if (fImpossible)
 					{
-						// Are we gathering reasons?
 						if (lstrrp != null && lstReason != null)
 						{
-							// Add the reason we failed
-							lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
+							// We assume that any impossible situation was immediately returned from
+							// and so will be the last reason in the list...
+							lstrrp[lstrrp.Count - 1].Reason.Applied = false;
+							lstrrp[lstrrp.Count - 1].Reason.Impossible = true;
 						}
 						// The rule detected an unsolveable partial solution - return false
 						return false;
 					}
 					if (fApplied)
 					{
-						// Are we gathering reasons?
-						if (lstrrp != null && lstReason != null)
-						{
-							// Add the reason(s) for the application
-							lstrrp.AddRange(lstReason.Select(reason => new ReasonRulePair(reason, rl)));
-						}
 						// If we find a rule that applied, then restart at the top
 						// since ones at the top (the most "important/useful" ones)
 						// may now apply

@@ -10,20 +10,13 @@ namespace PuzzleSolver
 
 	public interface IReason
 	{
-		// TODO: Determine if we really need HasExtension and GetExtension...
-		bool HasExtension();
-		List<IExtension> GetExtensions();
+		bool Applied { get; set; }
+		bool Impossible { get; set; }
 	}
 
 	public class ReasonBase : IReason
 	{
-		public virtual bool HasExtension()
-		{
-			return false;
-		}
-		public virtual List<IExtension> GetExtensions()
-		{
-			return null;
-		}
+		public bool Applied { get; set; }
+		public bool Impossible { get; set; }
 	}
 }
