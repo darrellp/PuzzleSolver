@@ -89,7 +89,7 @@ namespace PuzzleSolver
 		static public bool FUnique(TPs ps, ExpertSystem<TPs> es)
 		{
 			var lstpsSolutions = new List<TPs>();
-			var bti = new BacktrackInfo(BacktrackReason.InitialEntry, null);
+			var bti = es.IsKeepingReasons ? new BacktrackInfo(BacktrackReason.InitialEntry, null) : null;
 
 			FSearchForMultipleSolutions((TPs)ps.Clone(), es, bti, lstpsSolutions, 2);
 			return lstpsSolutions.Count == 1;
