@@ -120,7 +120,10 @@ namespace PuzzleSolver
 
 		internal void AddExpertSystemReasons(List<ReasonRulePair> lstrrp)
 		{
-			ReasonList.AddRange(lstrrp);
+			if (lstrrp != null)
+			{
+				ReasonList.AddRange(lstrrp);
+			}
 		}
 
 		internal void AddBacktrackReason(BacktrackReason btr)
