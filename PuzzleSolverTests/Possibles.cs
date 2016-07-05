@@ -5,25 +5,42 @@ using System.Text;
 
 namespace PuzzleSolverTests
 {
-	/// <summary>
-	/// Class for keeping track of the possibilities for a given value
-	/// </summary>
-	/// <remarks>
-	/// Should these be structs?  If they are then each time we want to change one we have to build a
-	/// brand new one, return it and the caller has to replace it wherever it came from whereas if they're
-	/// objects, they just change themselves in place.  I think the latter is better since generally we'll
-	/// only allocate a few of them.  Then again, when cloning PSs they have to be reproduced.  Hmm...</remarks>
+    /// <summary>
+    /// Class for keeping track of the possibilities for a given value in an alphametic.
+    /// </summary>
+    /// <remarks>
+    /// These values include both the "letters" in the alphametic and also the "carries" which have no
+    /// name and can only take values 0 and 1.  The possible values are kept in the bits of Values with 0
+    /// corresponding to the 1's bit.
+    /// 
+    /// Should these be structs?  If they are then each time we want to change one we have to build a
+    /// brand new one, return it and the caller has to replace it wherever it came from whereas if they're
+    /// objects, they just change themselves in place.  I think the latter is better since generally we'll
+    /// only allocate a few of them.  Then again, when cloning PSs they have to be reproduced.  Hmm...
+    /// </remarks>
 	class Possibles
 	{
 		public string Name { get; private set; }
 		public int Values { get; private set; }
 		public bool IsCarry { get; private set; }
 
+        /// <summary>
+        /// Gets a value indicating whether there are any possible values for this variable.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if no values are available; otherwise, <c>false</c>.
+        /// </value>
 		public bool Impossible
 		{
 			get { return Values == 0; }
 		}
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="Possibles"/> has a single fixed value.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if fixed; otherwise, <c>false</c>.
+        /// </value>
 		public bool Fixed
 		{
 			get { return !Impossible && (Values & (Values - 1)) == 0; }
@@ -52,16 +69,36 @@ namespace PuzzleSolverTests
 			IsCarry = possibles.IsCarry;
 		}
 
+        /// <summary>
+        /// Determines whether the specified n is possible for this variable.
+        /// </summary>
+        /// <param name="n">The n being inquired about.</param>
+        /// <returns>True if this variable can take on value n</returns>
 		public bool IsPossible(int n)
 		{
 			return ((1 << n) & Values) != 0;
 		}
 
+        /// <summary>
+        /// Produces a carry variable for a specific column.
+        /// </summary>
+        /// <remarks>
+        /// Normally carry variables can only take on the values 0 and 1.  This is true for a single pair
+        /// of values in a sum and is the default, though it can be overridden.
+        /// </remarks>
+        /// <param name="column">The column.</param>
+        /// <param name="values">The possible values the carry can take on.  Defaults to 0 and 1.</param>
+        /// <returns></returns>
 		public static Possibles Carry(int column, int values = 0x3)
 		{
 			return new Possibles("C" + column, values, true);
 		}
 
+        /// <summary>
+        /// Disallows the specified value.
+        /// </summary>
+        /// <param name="i">The value to be disallowed.</param>
+        /// <exception cref="System.ArgumentException">Invalid value in Disallow</exception>
 		public void Disallow(int i)
 		{
 			if ((IsCarry && i > 1) || i > 9 || i < 0)
@@ -71,6 +108,10 @@ namespace PuzzleSolverTests
 			Values &= ~(1 << i);
 		}
 
+        /// <summary>
+        /// Lowest value this variable can take on.
+        /// </summary>
+        /// <returns>The lowest value</returns>
 		public byte LowestValue()
 		{
 			var mask = 1;
@@ -85,11 +126,24 @@ namespace PuzzleSolverTests
 			return (byte)PartialSolutionAlphametic.NoValue;
 		}
 
+
+        /// <summary>
+        /// Sets the possible values.
+        /// </summary>
+        /// <param name="p">The possible values in the bits of p.</param>
 		public void Set(int p)
 		{
 			Values &= p;
 		}
 
+        /// <summary>
+        /// Creates a bitmap for all the values in a list of values.
+        /// </summary>
+        /// <remarks>
+        /// We don't do error checking.  If you want to set a value of 18, this function will not complain.
+        /// </remarks>
+        /// <param name="vals">The vals to be set.</param>
+        /// <returns>The int with the proper bits set for these values</returns>
 		static public int ToValuesInt(List<int> vals)
 		{
 			return vals.Aggregate(0, (current, val) => current | (1 << val));
@@ -101,6 +155,15 @@ namespace PuzzleSolverTests
 			return Add(p1, p2, out fCarries0, out fCarries1, subtract);
 		}
 
+        /// <summary>
+        /// Adds two possibles together and returns the possibilities for the sum and the two carries generated
+        /// </summary>
+        /// <param name="p1">The first possible.</param>
+        /// <param name="p2">The second possible.</param>
+        /// <param name="fCarries0">if set to <c>true</c> we definitely carry 0.</param>
+        /// <param name="fCarries1">if set to <c>true</c> we definitely carry 1.</param>
+        /// <param name="subtract">if set to <c>true</c> do a subtract rather than an add.</param>
+        /// <returns></returns>
 		public static int Add(int p1, int p2, out bool fCarries0, out bool fCarries1, bool subtract = false)
 		{
 			var add = p2;
@@ -111,6 +174,7 @@ namespace PuzzleSolverTests
 			// Take care of common case...
 			if (p1 == 0x3ff || p2 == 0x3ff)
 			{
+                // Totally unknown plus totally unknown yields totally unknown outputs
 				return 0x3ff;
 			}
 			for (var mask = subtract ? (1 << 10) : 1;
