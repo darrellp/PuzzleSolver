@@ -25,6 +25,8 @@ namespace PuzzleSolverTests
 			var possibleAdd2 = new Possibles("?", 1);		// Fixed at 0
 			var possibleCarry = Possibles.Carry(3);			// 0 or 1
 			bool fCarry0, fCarry1;
+		
+			// Add fixed 0 to fixed 0 - guarantees a zero carry
 			var sum = possibleAdd1.Add(possibleAdd2, out fCarry0, out fCarry1);
 			Assert.IsTrue(fCarry0);
 			Assert.IsFalse(fCarry1);
@@ -37,10 +39,10 @@ namespace PuzzleSolverTests
 			Assert.IsTrue(fCarry0);
 			Assert.IsFalse(fCarry1);
 			Assert.AreEqual(sum, 0x2AA);					// Should add to odds
-			sum = Possibles.Add(0x155, 0x2, out fCarry0, out fCarry1, true);		// Subtract 1
+			sum = Possibles.Add(0x154, 0x2, out fCarry0, out fCarry1, true);		// Subtract 1 from non-zero evens
 			Assert.IsTrue(fCarry0);
 			Assert.IsFalse(fCarry1);
-			Assert.AreEqual(sum, 0x2AA);					// Should add to odds
+			Assert.AreEqual(sum, 0x2A8);					// Should add to odds
 			sum = Possibles.Add(0x155, 0x10, out fCarry0, out fCarry1);				// Add 4
 			Assert.AreEqual(sum, 0x155);					// Adds to evens
 			sum = Possibles.Add(0x30C, 0x18, out fCarry0, out fCarry1);				// {2,3,8,9} + {3,4}
