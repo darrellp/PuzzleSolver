@@ -5,10 +5,36 @@ namespace PuzzleSolver
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// <summary>	
 	/// A partial solution is just what it sounds like - a partial solution to the problem at hand.
-	/// In terms of a search tree, it represents a node in the search tree. 
 	/// </summary>
 	///
-	/// <remarks>	Darrellp, 2/14/2011. </remarks>
+	/// <remarks>	
+	/// This is really the key structure to PuzzleSolver.  It contains some required methods and some
+	/// which are heuristic but can greatly enhance performance.
+	/// 
+	/// In terms of a search tree, it represents a node in the search tree. This is the data structure we 
+	/// backtrack with and use to produce child boards from in the backtracking process.
+	/// 
+	/// Generally, partialSolutions should provide rules which apply themselves to partial solutions and either refine the partial 
+	/// solution, do nothing at all or decide that the partial solution cannot lead to a solution.  This is not required but can greatly
+	/// speed things along.  Without any such rules, the PuzzleSolver essentially just does blind backtracking.
+	/// 
+	/// Rules are one of the key components of PuzzleSolver.  It's assumed that rules are more efficient than blind
+	/// backtracking so the general procedure is to apply rules until none of them apply and then generate children from the
+	/// final board which we backtrack down into.
+	/// 
+	/// They also have to decide which new partial solutions should be tested from a given partial solution.  This is what
+	/// forms the backtracking tree.
+	/// 
+	/// For efficiency's sake, they also need to be able to tell when two partial solutions are identical so that we don't
+	/// follow down the same solution tree twice.
+	/// 
+	/// The partial solution is also allowed to cut off the search process based on the plys deep we've searched.
+	/// 
+	/// It can provide a ranking to a partial solution to indicate which ones in a pool should be pursued first.
+	/// 
+	/// Finally, they include a way to determine that a partial solution is in fact a full solution.
+	/// 
+	/// Darrellp, 2/14/2011. </remarks>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public interface IPartialSolution

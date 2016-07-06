@@ -123,7 +123,7 @@ namespace PuzzleSolverTests
 				}
 				mask <<= 1;
 			}
-			return (byte)PartialSolutionAlphametic.NoValue;
+			return PartialSolutionAlphametic.NoValue;
 		}
 
 
@@ -207,8 +207,6 @@ namespace PuzzleSolverTests
 
 		public static int AddCarry(int n, int c, out bool fCarry0, out bool fCarry1, bool subtract)
 		{
-			fCarry0 = fCarry1 = false;
-
 			if (subtract)
 			{
 				// We will absolutely carry 0 if either n > 0 or if the carry is fixed at 0
@@ -332,7 +330,7 @@ namespace PuzzleSolverTests
 			}
 			return possibles.Fixed ?
 				sb.ToString() :
-				"{" + sb.ToString() + "}";
+				"{" + sb + "}";
 		}
 	}
 }

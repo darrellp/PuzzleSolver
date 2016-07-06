@@ -14,8 +14,33 @@ namespace PuzzleSolverTests
 		MemberCount
 	};
 	
-	// Implemented as a dictionary mapping letters to digits.  Currently
-	// unset letters are mapped to NoValue (10).
+	/// <summary>
+	/// This structure represents a partially (or fully) solved alphametic/board.  All PuzzleSolver applications must supply
+	/// a structure representing a partially solved board.  This is the data structure we backtrack with and use to produce
+	/// child boards from in the backtracking process.
+	/// 
+	/// Generally, they should set rules which apply themselves to partial solutions and either refine the partial solution,
+	/// do nothing at all or decide that the partial solution cannot lead to a solution.  This is not required but can greatly
+	/// speed things along.  Without any such rules, the PuzzleSolver essentially just does blind backtracking.
+	/// 
+	/// They also have to decide which new partial solutions should be tested from a given partial solution.  This is what
+	/// forms the backtracking tree.
+	/// 
+	/// For efficiency's sake, they also need to be able to tell when two partial solutions are identical so that we don't
+	/// follow down the same solution tree twice.
+	/// 
+	/// The partial solution is also allowed to cut off the search process based on the plys deep we've searched.
+	/// 
+	/// Finally, it can provide a ranking to a partial solution to indicate which ones in a pool should be pursued first.
+	/// 
+	/// Finally, they include a way to determine that a partial solution is in fact fully solved.
+	/// 
+	/// In this case we represent the puzzle with the original strings that made the addends and the sum.  We also have a
+	/// mapping from characters to values for characters that have taken on a fixed value.  For characters that haven't 
+	/// taken on a fixed value, they are represented by a dictionary to Possibles, a data structure to represent the
+	/// possible values a character could take on.  Finally, we have a list of carries for each column.
+	/// </summary>
+	/// <seealso cref="PuzzleSolver.IPartialSolution" />
 	class PartialSolutionAlphametic : IPartialSolution
 	{
 		public string Add1 { get; private set; }
@@ -28,6 +53,19 @@ namespace PuzzleSolverTests
 		internal const int Base = 10;
 		internal const byte NoValue = Base;
 
+		/// <summary>
+		/// Gets or sets an assigned value for a given character
+		/// </summary>
+		/// <remarks>
+		/// partialSolution['A'] gives the value A has taken on in this solution or NoValue if it hasn't been assigned
+		/// a value yet.
+		/// </remarks>
+		/// <value>
+		/// The value the given character has or should have.
+		/// </value>
+		/// <param name="key">The character.</param>
+		/// <returns></returns>
+		/// <exception cref="System.InvalidOperationException">Setting previously set digit to a different value</exception>
 		protected internal byte this[char key]
 		{
 			get { return Mapping[key]; }
@@ -42,7 +80,11 @@ namespace PuzzleSolverTests
 					throw new InvalidOperationException("Setting previously set digit to a different value");
 				}
 				Mapping[key] = value;
+
+				// The possibilities for this key is just the fixed value
 				Possible[key] = new Possibles(1 << value);
+
+				// No other key can have this value
 				foreach (var ch in Mapping.Keys.Where(ch => ch != key))
 				{
 					Possible[ch].Disallow(value);
@@ -50,6 +92,11 @@ namespace PuzzleSolverTests
 			}
 		}
 
+		/// <summary>
+		/// Gets all the values in a given column.
+		/// </summary>
+		/// <param name="iColumn">The index of the column.</param>
+		/// <returns>A ColumnValues object with all the values</returns>
 		internal ColumnValues GetColumnValues(int iColumn)
 		{
 			return new ColumnValues(
@@ -59,7 +106,12 @@ namespace PuzzleSolverTests
 				ValueAt(Member.Sum, iColumn));
 		}
 
-		// ipos == 0 means the ones column...
+		/// <summary>
+		/// Gets a particular value at a particular column: ipos == 0 means the ones column
+		/// </summary>
+		/// <param name="member">The type value we're looking for.</param>
+		/// <param name="ipos">The column index we're looking in.</param>
+		/// <returns>The value or NoValue if none has been assigned</returns>
 		internal byte ValueAt(Member member, int ipos)
 		{
 			var memberString = string.Empty;
@@ -84,6 +136,12 @@ namespace PuzzleSolverTests
 			return Mapping[memberString[memberString.Length - 1 - ipos]];
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="PartialSolutionAlphametic"/> class.
+		/// </summary>
+		/// <param name="add1">The string for the upper addend.</param>
+		/// <param name="add2">The string for the lower addend.</param>
+		/// <param name="sum">The string for the sum.</param>
 		internal PartialSolutionAlphametic(string add1, string add2, string sum)
 		{
 			var chars = (add1 + add2 + sum).Distinct().ToArray();
@@ -97,6 +155,10 @@ namespace PuzzleSolverTests
 			Carries[0] = 0;
 		}
 
+		/// <summary>
+		/// Clones the passed in partial solution.
+		/// </summary>
+		/// <param name="psa">The partial solution to be cloned.</param>
 		internal PartialSolutionAlphametic(PartialSolutionAlphametic psa)
 		{
 			Mapping = new Dictionary<char, byte>(psa.Mapping);
@@ -107,6 +169,12 @@ namespace PuzzleSolverTests
 			Sum = psa.Sum;
 		}
 
+		/// <summary>
+		/// Sets the character c to not have a particular value.
+		/// </summary>
+		/// <param name="c">The character to be restricted.</param>
+		/// <param name="val">The value it can't take on.</param>
+		/// <returns>True if this was possible, false if this has removed the last possibility for c</returns>
 		public bool SetImpossible(char c, byte val)
 		{
 			Possible[c].Disallow(val);
@@ -121,12 +189,30 @@ namespace PuzzleSolverTests
 			return true;
 		}
 
+		/// <summary>
+		/// Determine if this solution identical to another one.
+		/// </summary>
+		/// <param name="ps">The partial solution to be compared to this one.</param>
+		/// <returns>
+		/// true if they are identical.
+		/// </returns>
 		public bool IdenticalTo(IPartialSolution ps)
 		{
 			var psA = ps as PartialSolutionAlphametic;
 			return psA != null && Possible.All(assoc => psA.Possible[assoc.Key].Values == assoc.Value.Values);
 		}
 
+		/// <summary>
+		/// Get the potential extensions to this partial solution.  In terms of the search tree, these
+		/// are representatives of the children of this node.  If the count of the returned list is zero
+		/// then this is a leaf node.
+		/// 
+		/// In our particular case (alphametics) we find the first unfixed character and give all it's potential
+		/// values as extensions.
+		/// </summary>
+		/// <returns>
+		/// A list of applicable extensions.
+		/// </returns>
 		public List<IExtension> GetIExtensions()
 		{
 			foreach (var assoc in Mapping)
@@ -147,6 +233,17 @@ namespace PuzzleSolverTests
 			return null;
 		}
 
+		/// <summary>
+		/// Apply an extension to get a new child node.
+		/// </summary>
+		/// <param name="ext">The extension to be applied.</param>
+		/// <param name="fReturnClone">If true, the returned partial solution will be a newly created
+		/// clone of this partial solution with the extension applied.  If
+		/// false, we simply apply the extension to this partial solution and
+		/// return "this".</param>
+		/// <returns>
+		/// A partial solution with the extension applied.
+		/// </returns>
 		public IPartialSolution PsApply(IExtension ext, bool fReturnClone)
 		{
 			var extAl = ext as ExtensionAlphametic;
@@ -159,23 +256,52 @@ namespace PuzzleSolverTests
 			return ret;
 		}
 
+		/// <summary>
+		/// If this represents a solution, say so!
+		/// </summary>
+		/// <returns>
+		/// true if this partial solution is a solution to the problem at hand.
+		/// </returns>
 		public bool FSolved()
 		{
 			return Mapping.All(assoc => assoc.Value != NoValue);
 		}
 
+		/// <summary>
+		/// Makes a deep copy of this object.
+		/// </summary>
+		/// <returns>
+		/// A copy of this object.
+		/// </returns>
 		public IPartialSolution Clone()
 		{
 			return new PartialSolutionAlphametic(this);
 		}
 
+		/// <summary>
+		/// Continue evaluation at this node.
+		/// </summary>
+		/// <param name="cPlysDeep">The number of plys deep we've searched already.</param>
+		/// <returns>
+		/// true if this node should be expanded further.
+		/// </returns>
 		public bool FContinueEvaluation(int cPlysDeep)
 		{
 			return !FSolved();
 		}
 
+		/// <summary>
+		/// Evaluates the board without any lookahead.
+		/// </summary>
+		/// <returns>
+		/// Evaluation of the board.
+		/// </returns>
 		public int Evaluate()
 		{
+			// We don't really have any ranking between potential solutions.  We could perhaps rank
+			// based on the number of characters which have taken on values or on the total number
+			// of possible values across all characters.  I'm not sure how much good that would do.
+			// For these demonstration purposes, we leave off this purely heuristic measure entirely.
 			return 0;
 		}
 	}
