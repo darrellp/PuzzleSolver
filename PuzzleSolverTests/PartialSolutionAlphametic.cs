@@ -15,9 +15,12 @@ namespace PuzzleSolverTests
 	};
 	
 	/// <summary>
-	/// This structure represents a partially (or fully) solved alphametic/board.  All PuzzleSolver applications must supply
-	/// a structure representing a partially solved board.  This is the data structure we backtrack with and use to produce
-	/// child boards from in the backtracking process.
+	/// This structure represents a partially (or fully) solved alphametic/board.
+	/// </summary>
+	/// 
+	/// <remarks>
+	/// All PuzzleSolver applications must supply a structure representing a partially solved board.This is the data
+	/// structure we backtrack with and use to produce child boards from in the backtracking process.
 	/// 
 	/// Generally, they should set rules which apply themselves to partial solutions and either refine the partial solution,
 	/// do nothing at all or decide that the partial solution cannot lead to a solution.  This is not required but can greatly
@@ -39,7 +42,7 @@ namespace PuzzleSolverTests
 	/// mapping from characters to values for characters that have taken on a fixed value.  For characters that haven't 
 	/// taken on a fixed value, they are represented by a dictionary to Possibles, a data structure to represent the
 	/// possible values a character could take on.  Finally, we have a list of carries for each column.
-	/// </summary>
+	/// </remarks>
 	/// <seealso cref="PuzzleSolver.IPartialSolution" />
 	class PartialSolutionAlphametic : IPartialSolution
 	{
