@@ -57,6 +57,17 @@ namespace PuzzleSolverTests
 	/// I did a little of that ingenuity with the longs representing entire boards and keeping a
 	/// list of attacked positions for each move, but too much of it would ruin the pedagogical
 	/// nature of this example so I'll avoid them here.
+	/// 
+	/// The actual way to do this is to divide the board into black squares and white squares.
+	/// for each of these boards, rotate them 45 degrees and you've got a rook placement position.
+	/// Actually, you only need to solve one of these rook placement problems since they're
+	/// independent and the total solutions is just the solutions for one squared.
+	/// 
+	/// There's a great mathematical solution here:
+	/// http://blog.csdn.net/liukaipeng/article/details/3901412
+	/// Goes to show that if you blindly start backtracking without even imagining that there might
+	/// be a simpler solution - well, there might be.
+	/// 
 	/// </summary>
 	/// <seealso cref="PuzzleSolver.IPartialSolution" />
 	class PartialSolutionBishop : IPartialSolution
