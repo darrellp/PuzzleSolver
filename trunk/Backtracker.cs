@@ -111,7 +111,7 @@ namespace PuzzleSolver
 		///<returns>	True if we need to keep searching, false if there's no reason for more searching. </returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		static private bool FSearchForMultipleSolutions(
+		static public bool FSearchForMultipleSolutions(
 			TPs ps, ExpertSystem<TPs> es,
 			BacktrackInfo bti,
 			ICollection<TPs> lstpsSolutions,
