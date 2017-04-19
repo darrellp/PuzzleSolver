@@ -1,0 +1,6 @@
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\bin\Debug\PuzzleSolver.XML
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\bin\Debug\PuzzleSolver.dll
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\bin\Debug\PuzzleSolver.pdb
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\obj\Debug\PuzzleSolver.csprojResolveAssemblyReference.cache
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\obj\Debug\PuzzleSolver.dll
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\obj\Debug\PuzzleSolver.pdb

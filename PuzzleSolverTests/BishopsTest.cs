@@ -5,6 +5,14 @@ using PuzzleSolver;
 
 namespace PuzzleSolverTests
 {
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>	(Unit Test Class) the bishops test. </summary>
+	///
+	/// <remarks>	This represents pretty much the simplest case where there are no rules
+	/// 			at all - pure backtracking at work.
+	/// 			Darrell Plank, 4/18/2017. </remarks>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	[TestClass]
 	public class BishopsTest
 	{
@@ -20,51 +28,28 @@ namespace PuzzleSolverTests
 	}
 
 	/// <summary>
-	/// This is based on the "Little Bishops" problem in "Programming Challenges".  It's
-	/// not efficient enough to count the 5599888 solutions in their example data.  I'm
-	/// pretty sure that this is because it's not taking symmetry considerations into
-	/// account as discussed below.
+	/// This is based on the "Little Bishops" problem in 
+	/// <a href="http://www.programming-challenges.com/pg.php?page=downloadproblem&format=html&probid=110801">
+	/// Programming Challenges
+	/// </a>.  
+	/// It's not efficient enough to count the 5599888 solutions in their example data.  An efficient
+	/// method is given at the end of these remarks.  This solution is just for learning purposes.
 	/// 
 	/// We use two longs as bitmaps to represent which squares are occupied and which
 	/// are attacked.  Position 0-7 represents the first row from from left at bit 0 to right
 	/// at bit 7.  The nextrow is positions 8-15, etc..  This allows only boards up to size 8
 	/// but that's fine.
 	/// 
-	/// We could help ourselves a lot by symmetry conditions which we currently totally ignore.
-	/// For instance, we could insist that the first bishop be placed on the upper left diagonal
-	/// and the second be placed in the upper right diagonal.  There will certainly be exactly one
-	/// bishop on both of these diagonals and all other solutions can be obtained by flipping 
-	/// around one or both so each of our solutions would correspond to four symmetric solutions.
-	/// Might have to be some fiddling with odd sized boards and fitting one into the center
-	/// square so it's on both diagonals, but not a big deal.  We don't do this here and so
-	/// full 8x8 boards are actually pretty impractical with the setup as it stands.
-	/// 
-	/// It wouldn't be that hard to incorporate this sort of idea.  GetIExtensions would have
-	/// to look at the current number of bishops placed and restrict the positions for the
-	/// first two bishops.
-	/// 
-	/// Another inefficiency is that we check each new solution to see if it's already been
-	/// generated before.  With 5 million solutions to check against for each new one
-	/// discovered, this is going to be a huge chunk of time.  We probably need to incorporate
-	/// some sort of facility to indicate that each solution generated will be unique and
-	/// there's no need to check it against the previous solutions.  We would need to ensure this
-	/// though and the current desing doesn't ensure it.  Even if we did the symmetry restrictions
-	/// mentioned above, the third bishop could be placed anywhere and ditto the fourth so their
-	/// positions would be swapped in different solution paths which would end up with identical
-	/// solutions.  We would have to be a little more ingenious in general to get this thing to
-	/// work quickly.
-	/// 
-	/// I did a little of that ingenuity with the longs representing entire boards and keeping a
-	/// list of attacked positions for each move, but too much of it would ruin the pedagogical
-	/// nature of this example so I'll avoid them here.
 	/// 
 	/// The actual way to do this is to divide the board into black squares and white squares.
 	/// for each of these boards, rotate them 45 degrees and you've got a rook placement position.
 	/// Actually, you only need to solve one of these rook placement problems since they're
-	/// independent and the total solutions is just the solutions for one squared.
+	/// independent and the total solutions is just the solutions for one squared.  Well, this
+	/// might not work if n is odd since the "white" board and the "black" board would be
+	/// different.
 	/// 
 	/// There's a great mathematical solution here:
-	/// http://blog.csdn.net/liukaipeng/article/details/3901412
+	/// <a href="http://blog.csdn.net/liukaipeng/article/details/3901412">Little Bishop's Solution</a>
 	/// Goes to show that if you blindly start backtracking without even imagining that there might
 	/// be a simpler solution - well, there might be.
 	/// 
@@ -74,11 +59,17 @@ namespace PuzzleSolverTests
 	{
 		ulong Occupied { get; set; }
 		ulong Attacked { get; set; }
-		int BoardSize { get; set; }
+		int BoardSize { get; }
 		int BishopCount { get; set; }
-		int BishopsRequired { get; set; }
+		int BishopsRequired { get; }
 
+		/// <summary>	A mapping from positions to the positions they attack. </summary>
 		private static Dictionary<ulong, ulong> _attacksFromPositions;
+
+		/// <summary>	Two dictionaries to map from the mask for a position to the
+		/// 			row and column for that position. Yes, it's an easy
+		/// 			calculation but why do it over and over?
+		/// </summary>
 		private static Dictionary<ulong, int> _rowFromMask;
 		private static Dictionary<ulong, int> _colFromMask; 
 
@@ -103,6 +94,12 @@ namespace PuzzleSolverTests
 			BishopsRequired = psb.BishopsRequired;
 		}
 
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>	Initializes this object. </summary>
+		///
+		/// <remarks>	Darrell Plank, 4/17/2017. </remarks>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		private void Initialize()
 		{
 			if (_attacksFromPositions == null)
@@ -114,6 +111,7 @@ namespace PuzzleSolverTests
 				_colFromMask = new Dictionary<ulong, int>(64);
 				for (iPos = 0, mask = 1; iPos < 64; iPos++, mask <<= 1)
 				{
+					// Row and column are just a division and remainder by 8.
 					_rowFromMask[mask] = iPos >> 3;
 					_colFromMask[mask] = iPos & 7;
 				}
@@ -146,11 +144,24 @@ namespace PuzzleSolverTests
 			return (ulong)1 << ((iRow << 3) + iCol);
 		}
 
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>	Make a mask of attacked positions from a position mask. </summary>
+		///
+		/// <remarks>	Darrell Plank, 4/17/2017. </remarks>
+		///
+		/// <param name="mask">	The position mask. </param>
+		///
+		/// <returns>	Mask with the attacked positions. </returns>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		private ulong AttackedPositionsFromMask(ulong mask)
 		{
 			ulong attacks = 0;
 			var iRow = _rowFromMask[mask];
 			var iCol = _colFromMask[mask];
+
+			// For each row determine the potential columns for attacked positions and
+			// 'or' in those positions to the list of attacked positions.
 			for (var curRow = 0; curRow < 8; curRow++)
 			{
 				var curCol = curRow - iRow + iCol;
@@ -167,10 +178,31 @@ namespace PuzzleSolverTests
 			return attacks;
 		}
 
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>	Determine if this solution identical to another one. </summary>
+		///
+		/// <remarks>	Darrell Plank, 4/17/2017. </remarks>
+		///
+		/// <param name="ps">	The partial solution to be compared to this one. </param>
+		///
+		/// <returns>	true if they are identical. </returns>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		public bool IdenticalTo(IPartialSolution ps)
 		{
 			return ((PartialSolutionBishop)ps).Occupied == Occupied;
 		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>
+		/// Get the potential extensions to this partial solution.  We're using the position masks for the
+		/// bishop to represent extensions.
+		/// </summary>
+		///
+		/// <remarks>	Darrell Plank, 4/17/2017. </remarks>
+		///
+		/// <returns>	A list of applicable extensions. </returns>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		public List<IExtension> GetIExtensions()
 		{
@@ -190,18 +222,49 @@ namespace PuzzleSolverTests
 			return positions;
 		}
 
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>	Apply an extension to get a new child node. </summary>
+		///
+		/// <remarks>	In the case of the bishop's problem, an extension is essentially a position mask
+		/// 			and "applying it" means placing a bishop at that position and marking all
+		/// 			it's attacked positions appropriately.  Darrell Plank, 4/17/2017. </remarks>
+		///
+		/// <param name="ext">		   	The extension to be applied. </param>
+		/// <param name="fReturnClone">	If true, the returned partial solution will be a newly created
+		/// 							clone of this partial solution with the extension applied.  If
+		/// 							false, we simply apply the extension to this partial solution and
+		/// 							return "this". </param>
+		///
+		/// <returns>	A partial solution with the extension applied. </returns>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		public IPartialSolution PsApply(IExtension ext, bool fReturnClone)
 		{
 			var psb = fReturnClone ? new PartialSolutionBishop(this) : this;
 			var mask = ((BishopExtension)ext).Position;
+			
+			// Place the new bishop
 			psb.Occupied |= mask;
+
+			// Mark all it's attacked positions
 			psb.Attacked |= AttackedPositionsFromMask(mask);
+
+			// Count it in our total
 			psb.BishopCount = BishopCount + 1;
 			return psb;
 		}
 
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// <summary>	If this represents a solution, say so! </summary>
+		///
+		/// <remarks>	Darrell Plank, 4/17/2017. </remarks>
+		///
+		/// <returns>	true if this board has been solved. </returns>
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+
 		public bool FSolved()
 		{
+			// It's solved if we have the requested number of bishops
 			return BishopCount == BishopsRequired;
 		}
 
@@ -220,6 +283,12 @@ namespace PuzzleSolverTests
 			return 0;
 		}
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// <summary>	Just a position to place a new piece on the board. </summary>
+	///
+	/// <remarks>	Darrell Plank, 4/18/2017. </remarks>
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	class BishopExtension : IExtension
 	{

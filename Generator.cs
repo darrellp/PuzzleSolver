@@ -6,7 +6,7 @@
 	/// <remarks>	Darrellp, 2/14/2011. </remarks>
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	abstract public class Generator<T> where T : IPartialSolution, new()
+	public abstract class Generator<T> where T : IPartialSolution, new()
 	{
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// <summary>	A list of extensions which gives a complete solutions from an empty one.. </summary>

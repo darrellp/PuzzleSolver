@@ -1,0 +1,9 @@
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\PuzzleSolverTests\bin\Debug\PuzzleSolverTests.dll
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\PuzzleSolverTests\bin\Debug\PuzzleSolverTests.pdb
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\PuzzleSolverTests\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\PuzzleSolverTests\bin\Debug\PuzzleSolver.dll
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\PuzzleSolverTests\bin\Debug\PuzzleSolver.pdb
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\PuzzleSolverTests\bin\Debug\PuzzleSolver.xml
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\PuzzleSolverTests\obj\Debug\PuzzleSolverTests.csprojResolveAssemblyReference.cache
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\PuzzleSolverTests\obj\Debug\PuzzleSolverTests.dll
+C:\Users\Darrell Plank\Source\Repos\PuzzleSolver\PuzzleSolverTests\obj\Debug\PuzzleSolverTests.pdb

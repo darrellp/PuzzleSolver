@@ -1,0 +1,410 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PuzzleSolver</name>
+    </assembly>
+    <members>
+        <member name="T:PuzzleSolver.Backtracker`1">
+             <summary>	
+             This is the heart of PuzzleSolver.  It tries using all the rules until none of them apply any
+             more and then invokes standard backtracking.  Each time it makes a guess, it tries the rules
+             again to determine the implications.  If the current board turns out to be impossible to
+             solve, it backtracks. 
+             </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             ### <typeparam name="TPs">	The type of partial solution we apply to. </typeparam>
+        </member>
+        <member name="M:PuzzleSolver.Backtracker`1.FSolve(`0,PuzzleSolver.ExpertSystem{`0},`0@,PuzzleSolver.BacktrackInfo@)">
+             <summary>	Return the first solution we can find if any and gather backtracking reasons. </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             <param name="ps">		Partial solution so far. </param>
+             <param name="es">		Expert System to apply. </param>
+             <param name="psFinal">	[out] Final solution. </param>
+             <param name="bti">		[out] Reasons for inferences. </param>
+            
+            <returns>	True if a solution was found, else false. </returns>
+        </member>
+        <member name="M:PuzzleSolver.Backtracker`1.FSolve(`0,PuzzleSolver.ExpertSystem{`0},`0@)">
+             <summary>	Return the first solution we can find if any - don't gather backtracking reasons. </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             <param name="ps">		Partial solution so far. </param>
+             <param name="es">		Expert System to apply. </param>
+             <param name="psFinal">	[out] Final solution. </param>
+            
+             <returns>	True if a solution was found, else false. </returns>
+        </member>
+        <member name="M:PuzzleSolver.Backtracker`1.FUnique(`0,PuzzleSolver.ExpertSystem{`0})">
+            
+        </member>
+        <member name="M:PuzzleSolver.Backtracker`1.FSearchForMultipleSolutions(`0,PuzzleSolver.ExpertSystem{`0},PuzzleSolver.BacktrackInfo,System.Collections.Generic.ICollection{`0},System.Int32)">
+             <summary>	
+             Searches for a fixed count of solutions.  Returns as many up to that count as it can find. 
+             </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             <param name="ps">				The puzzle up to this point. </param>
+             <param name="es">				The expert system. </param>
+             <param name="bti">				Backtrack info. </param>
+             <param name="lstpsSolutions">	The list to place the found solutions in. </param>
+             <param name="csln">				The desired count of solutions. </param>
+            
+            <returns>	True if we need to keep searching, false if there's no reason for more searching. </returns>
+        </member>
+        <member name="M:PuzzleSolver.Backtracker`1.EvaluateBoard(`0,System.Int32,PuzzleSolver.BacktrackInfo)">
+             <summary>	
+             Searches for a fixed count of solutions.  Returns as many up to that count as it can find. 
+             </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             <param name="ps">				The puzzle/game up to this point. </param>
+             <param name="cPlys">			Count of plys deep we've searched thus far</param>
+             <param name="bti">				Backtrack info. </param>
+            
+            <returns>	An evaluation of how valuable the current board position is. </returns>
+        </member>
+        <member name="T:PuzzleSolver.BacktrackReason">
+             <summary>	Values that represent the reason for a backtrack . </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+        </member>
+        <member name="F:PuzzleSolver.BacktrackReason.InitialEntry">
+            <summary> Initial entry into the backtracking process.  </summary>
+        </member>
+        <member name="F:PuzzleSolver.BacktrackReason.ForcedChoice">
+            <summary> A forced move on the current board.  </summary>
+        </member>
+        <member name="F:PuzzleSolver.BacktrackReason.Guess">
+            <summary> A  choice which may be backtracked over later.  </summary>
+        </member>
+        <member name="F:PuzzleSolver.BacktrackReason.ExpertSystemApplication">
+            <summary> An application of the expert system rules.  </summary>
+        </member>
+        <member name="F:PuzzleSolver.BacktrackReason.LeafNode">
+            <summary> A board from which there are no legal moves.  </summary>
+        </member>
+        <member name="F:PuzzleSolver.BacktrackReason.NoMoreMoves">
+            <summary> There are moves but we've tried them all without success.  </summary>
+        </member>
+        <member name="F:PuzzleSolver.BacktrackReason.RuleDetectedImpossibility">
+            <summary> A board which has been detected to have no solution.  </summary>
+        </member>
+        <member name="F:PuzzleSolver.BacktrackReason.GoalReachedButMoreNeeded">
+            <summary> Found a solution but we need more to satisfy our goal.  </summary>
+        </member>
+        <member name="F:PuzzleSolver.BacktrackReason.GoalCountReached">
+            <summary> Found all the solutions we need so backtracking is being shut down.  </summary>
+        </member>
+        <member name="F:PuzzleSolver.BacktrackReason.DuplicateSolution">
+            <summary> Found a goal but it's already been found before.  </summary>
+        </member>
+        <member name="T:PuzzleSolver.BacktrackInfo">
+             <summary>	Information about the backtracking process. This is intended to be a full
+             accounting of the reasoning process when deriving a solution including all the reasoning of
+             the expert system and all the decisions made during the backtracking process itself.</summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+        </member>
+        <member name="P:PuzzleSolver.BacktrackInfo.BackTrackReason">
+             <summary>	Gets the reason for the backtrack. </summary>
+            
+             <value>	The back track reason. </value>
+        </member>
+        <member name="P:PuzzleSolver.BacktrackInfo.ReasonList">
+             <summary>	Gets the list of reasons. This only applies if the BackTrackReason 
+             is ExpertSystemApplication</summary>
+            
+             <value>	A List of reasons. </value>
+        </member>
+        <member name="P:PuzzleSolver.BacktrackInfo.Extension">
+             <summary>	Gets the extension/move made. This only applies if the BackTrackReason 
+             is ForcedChoice or Guess</summary>
+            
+             <value>	The extension. </value>
+        </member>
+        <member name="P:PuzzleSolver.BacktrackInfo.Extensions">
+             <summary>	Gets the extensions which were made from this node. </summary>
+            
+             <value>	The extensions. </value>
+        </member>
+        <member name="M:PuzzleSolver.BacktrackInfo.#ctor(PuzzleSolver.BacktrackReason,PuzzleSolver.IExtension)">
+             <summary>	Constructor. </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             <param name="btReason">	The reason for the backtracking step. </param>
+             <param name="ext">		The extension/move made on this backtracking branch. </param>
+        </member>
+        <member name="M:PuzzleSolver.BacktrackInfo.ToString">
+             <summary>	
+             Returns a <see cref="T:System.String" /> that represents the current backtracking reason. 
+             </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             <returns>	
+             A <see cref="T:System.String" /> that represents the current backtracking reason. 
+             </returns>
+        </member>
+        <member name="M:PuzzleSolver.BacktrackInfo.AddExpertSystemReasons(System.Collections.Generic.List{PuzzleSolver.ReasonRulePair})">
+             <summary>	Adds an expert system reason for a move made. </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             <param name="lstrrp">	The rules applied and the reason for the rule applications. </param>
+        </member>
+        <member name="T:PuzzleSolver.ExpertSystem`1">
+             <summary>	
+             The ExpertSystem is composed of a set of rules which act on IPartialSolution objects.  It
+             applies those rules until none apply or until some rule flags the partial solution as
+             unsolvable. 
+             </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             ### <typeparam name="TPs">	The type of the partial solution we're applied to. </typeparam>
+        </member>
+        <member name="P:PuzzleSolver.ExpertSystem`1.IsKeepingReasons">
+            <summary>True if we're gathering reasons during the backtracking process. </summary>
+        </member>
+        <member name="M:PuzzleSolver.ExpertSystem`1.#ctor(System.Collections.Generic.List{PuzzleSolver.IRule},System.Collections.Generic.List{PuzzleSolver.IRule},System.Boolean)">
+             <summary>	Constructor. </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             <param name="lstRules">		The list of rules. </param>
+            <param name="lstOneTimeRules"> Rules run only once at the start </param>
+            <param name="fKeepReasons">	true if we want to gather reasons. </param>
+        </member>
+        <member name="M:PuzzleSolver.ExpertSystem`1.FApply(`0,System.Boolean)">
+             <summary>	Apply the rules of this expert system without keeping reasons. </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             <param name="ps">	The partial solution we're being applied to. </param>
+            <param name="firstTime"> Being called for the first time </param>
+            <returns>	Returns false if an impossible state is detected, else true. </returns>
+        </member>
+        <member name="M:PuzzleSolver.ExpertSystem`1.FApply(`0,System.Boolean,System.Collections.Generic.List{PuzzleSolver.ReasonRulePair}@)">
+             <summary>	Apply the rules of this expert system. </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            <param name="ps">		The partial solution we're being applied to. </param>
+            <param name="firstTime"> True if this is the first time the expert system is being called</param>
+            <param name="lstrrp">	[out] The list of reasons for rule applications. </param>
+            <returns>	Returns false if an impossible state is detected, else true. </returns>
+        </member>
+        <member name="T:PuzzleSolver.Generator`1">
+             <summary>	Used to generate puzzles </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+        </member>
+        <member name="M:PuzzleSolver.Generator`1.ExtensionList">
+             <summary>	A list of extensions which gives a complete solutions from an empty one.. </summary>
+            
+             <returns>	The list of extensions. </returns>
+        </member>
+        <member name="M:PuzzleSolver.Generator`1.Generate(PuzzleSolver.ExpertSystem{`0})">
+             <summary>	Generates a puzzle based on a passed in expert system</summary>
+            
+             <param name="e"> The expert system to generate from. </param>
+            
+             <returns>	. </returns>
+        </member>
+        <member name="M:PuzzleSolver.Generator`1.ISplitBinarySearch(System.Int32,System.Int32,PuzzleSolver.ExpertSystem{`0})">
+            <summary>
+            Find the point, n, at which applying all extensions less than n yields a puzzle with
+            a non-unique solution but including extension n yields a puzzle with a unique solution.
+            
+            Note: It is not quite invariant that iNonUnique is in fact non-unique.  We initially call
+            this function with zero which is normally non-unique since it represents a single placement
+            but since this call continually adds in elements, towards the end, that single placement
+            may be necessary to achieve uniqueness.
+            </summary>
+            <param name="iNonUnique"></param>
+            <param name="iUnique"></param>
+            <param name="e"></param>
+            <returns></returns>
+        </member>
+        <member name="T:PuzzleSolver.IExtension">
+             <summary>
+             <para>Extensions are "representatives" of child nodes.  Partial solutions are normally somewhat expensive to 
+             create and take up a lot of memory so we use extensions until it's time to actually attempt to solve a
+             particular partial solution.  So for Battleship, an extension would normally just specify a ship size
+             and a place to put it.  Applying that extension to a partial solution will actually produce a new 
+             partial solution identical to the old one but with the specified ship placed in the specified spot.</para>
+            
+             <para>IExtension supports IComparable so that we can potentially heuristically sort the child nodes in order
+             of their likelihood of extending our solution.  Again, using the Battleship example, we would normally
+             try placing ships in columns/rows where they fit most snugly, i.e., where the number of open cells is
+             a minimum.</para>
+            
+             <para>Note that IExtensions are used in a few places - backtracker, reasons and generators for instance.  There
+             is nothing that says the same IExtension must be used for each of these.  For instance, in Battleship
+             I use entire ships as the extension in Backtracker but the generator should use a smaller unit of
+             extension - we don't want to show only entire ships in the generated puzzles so we would use a
+             smaller extension (i.e., what goes in a single cell) for generation purposes.  On the other hand, in
+             Sudoku, we extend and generate puzzles in the same units - the value that is assigned to one cell.
+             The only requirement is that the Apply method of IPartialSolution knows how to deal with any extension
+             we throw at it.</para>
+             </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+        </member>
+        <member name="T:PuzzleSolver.IPartialSolution">
+             <summary>	
+             A partial solution is just what it sounds like - a partial solution to the problem at hand.
+             </summary>
+            
+             <remarks>	
+             This is really the key structure to PuzzleSolver.  It contains some required methods and some
+             which are heuristic but can greatly enhance performance.
+             
+             In terms of a search tree, it represents a node in the search tree. This is the data structure we 
+             backtrack with and use to produce child boards from in the backtracking process.
+             
+             Generally, partialSolutions should provide rules which apply themselves to partial solutions and either refine the partial 
+             solution, do nothing at all or decide that the partial solution cannot lead to a solution.  This is not required but can greatly
+             speed things along.  Without any such rules, the PuzzleSolver essentially just does blind backtracking.
+             
+             Rules are one of the key components of PuzzleSolver.  It's assumed that rules are more efficient than blind
+             backtracking so the general procedure is to apply rules until none of them apply and then generate children from the
+             final board which we backtrack down into.
+             
+             They also have to decide which new partial solutions should be tested from a given partial solution.  This is what
+             forms the backtracking tree.
+             
+             For efficiency's sake, they also need to be able to tell when two partial solutions are identical so that we don't
+             follow down the same solution tree twice.
+             
+             The partial solution is also allowed to cut off the search process based on the plys deep we've searched.
+             
+             It can provide a ranking to a partial solution to indicate which ones in a pool should be pursued first.
+             
+             Finally, they include a way to determine that a partial solution is in fact a full solution.
+             
+             Darrellp, 2/14/2011. </remarks>
+        </member>
+        <member name="M:PuzzleSolver.IPartialSolution.IdenticalTo(PuzzleSolver.IPartialSolution)">
+             <summary>	Determine if this solution identical to another one. </summary>
+            
+             <param name="ps">	The partial solution to be compared to this one. </param>
+            
+             <returns>	true if they are identical. </returns>
+        </member>
+        <member name="M:PuzzleSolver.IPartialSolution.GetIExtensions">
+             <summary>	
+             Get the potential extensions to this partial solution.  In terms of the search tree, these
+             are representatives of the children of this node.  If the count of the returned list is zero
+             then this is a leaf node. 
+             </summary>
+            
+             <returns>	A list of applicable extensions. </returns>
+        </member>
+        <member name="M:PuzzleSolver.IPartialSolution.PsApply(PuzzleSolver.IExtension,System.Boolean)">
+             <summary>	Apply an extension to get a new child node. </summary>
+            
+             <param name="ext">			The extension to be applied. </param>
+             <param name="fReturnClone">	If true, the returned partial solution will be a newly created
+             							clone of this partial solution with the extension applied.  If
+             							false, we simply apply the extension to this partial solution and
+             							return "this". </param>
+            
+             <returns>	A partial solution with the extension applied. </returns>
+        </member>
+        <member name="M:PuzzleSolver.IPartialSolution.FSolved">
+             <summary>	If this represents a solution, say so! </summary>
+            
+             <returns>	true if this partial solution is a solution to the problem at hand. </returns>
+        </member>
+        <member name="M:PuzzleSolver.IPartialSolution.Clone">
+             <summary>	Makes a deep copy of this object. </summary>
+            
+             <returns>	A copy of this object. </returns>
+        </member>
+        <member name="M:PuzzleSolver.IPartialSolution.FContinueEvaluation(System.Int32)">
+             <summary>	Continue evaluation at this node. </summary>
+            
+             <param name="cPlysDeep">	The number of plys deep we've searched already. </param>
+            
+             <returns>	true if this node should be expanded further. </returns>
+        </member>
+        <member name="M:PuzzleSolver.IPartialSolution.Evaluate">
+             <summary>	Evaluates the board without any lookahead. </summary>
+            
+             <returns>	Evaluation of the board. </returns>
+        </member>
+        <member name="T:PuzzleSolver.IReason">
+             <summary>	Interface representing the reason an expert system rule was applied </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+        </member>
+        <member name="T:PuzzleSolver.IRule">
+             <summary>	
+             Rules act on partial solutions.  When we attempt to apply a rule to a partial solution, one
+             of three things happen:
+             
+             * The rule makes changes to the partial solution. Normally, rules try to deduce information
+             about the partial solution from it's current state.  If they detect such a condition, they
+             make changes to the state to indicate those changes.  For instance, a Sudoku puzzle may
+             deduce that a particular digit goes in a particular cell and place it there.  FApply will
+             return true if such a change was made.
+             
+             * The rule determines that the current partial solution is unsolveable. Since rules often do
+             fairly extensive analysis on the partial solutions, they will often be in a position to
+             determine that the partial solution is unsolvable. For instance, if Sudoku determines, via an
+             elimination rule, that there's only one value left in a row, it can deduce what goes there by
+             the process of elimination. However, if that value is already in the crossing column, then
+             the partial solution is unsolvable.  If the rule detects unsolvability, it will set
+             fImpossible and return.
+             
+             * The rule finds nothing of interest. If the rule simply turns up nothing, then it will return
+             false and make no changes to the board. 
+             </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+        </member>
+        <member name="M:PuzzleSolver.IRule.FTrigger(PuzzleSolver.IPartialSolution)">
+             <summary>	
+             Returns true if the rule should be triggered. Used for a quick check before actually
+             attempting to apply the rule. 
+             </summary>
+            
+             <param name="ps">	The partial solution. </param>
+            
+             <returns>	true if the rule is applicable to the partial solution. </returns>
+        </member>
+        <member name="M:PuzzleSolver.IRule.FApply(PuzzleSolver.IPartialSolution,System.Collections.Generic.List{PuzzleSolver.IReason}@,System.Boolean@)">
+             <summary>	
+             Returns false if the rule had no effect - also tell if an the partial solution was found to
+             be impossible. 
+             </summary>
+            
+             <param name="obj">			The object to apply the rule to. </param>
+             <param name="reason">		[out] The reason the rule applied. </param>
+             <param name="fImpossible">	[out] true if the board was determined to be impossible to solve. </param>
+            
+             <returns>	true if the rule caused a change to the board, false if it made no changes. </returns>
+        </member>
+        <member name="T:PuzzleSolver.ReasonRulePair">
+             <summary>	A structure to record a rule application and the reason for that application. </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+        </member>
+        <member name="M:PuzzleSolver.ReasonRulePair.#ctor(PuzzleSolver.IReason,PuzzleSolver.IRule)">
+             <summary>	Constructor. </summary>
+            
+             <remarks>	Darrellp, 2/14/2011. </remarks>
+            
+             <param name="reasonParm">	The reason the rule was applied. </param>
+             <param name="ruleParm">		The rule that was applied. </param>
+        </member>
+    </members>
+</doc>

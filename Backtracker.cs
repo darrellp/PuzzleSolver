@@ -35,7 +35,7 @@ namespace PuzzleSolver
 		///<returns>	True if a solution was found, else false. </returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		static public bool FSolve(TPs ps, ExpertSystem<TPs> es, out TPs psFinal, out BacktrackInfo bti)
+		public static bool FSolve(TPs ps, ExpertSystem<TPs> es, out TPs psFinal, out BacktrackInfo bti)
 		{
 			// Set up
 			var lstpsSolutions = new List<TPs>();
@@ -69,7 +69,7 @@ namespace PuzzleSolver
 		/// <returns>	True if a solution was found, else false. </returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		static public bool FSolve(TPs ps, ExpertSystem<TPs> es, out TPs psFinal)
+		public static bool FSolve(TPs ps, ExpertSystem<TPs> es, out TPs psFinal)
 		{
 			BacktrackInfo bti;
 			return FSolve(ps, es, out psFinal, out bti);
@@ -86,7 +86,7 @@ namespace PuzzleSolver
 		/// <returns>	true if exactly one solution exists, false otherwise. </returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		/// 
-		static public bool FUnique(TPs ps, ExpertSystem<TPs> es)
+		public static bool FUnique(TPs ps, ExpertSystem<TPs> es)
 		{
 			var lstpsSolutions = new List<TPs>();
 			var bti = es.IsKeepingReasons ? new BacktrackInfo(BacktrackReason.InitialEntry, null) : null;
@@ -111,7 +111,7 @@ namespace PuzzleSolver
 		///<returns>	True if we need to keep searching, false if there's no reason for more searching. </returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		static public bool FSearchForMultipleSolutions(
+		public static bool FSearchForMultipleSolutions(
 			TPs ps, ExpertSystem<TPs> es,
 			BacktrackInfo bti,
 			ICollection<TPs> lstpsSolutions,
@@ -221,7 +221,7 @@ namespace PuzzleSolver
 		///<returns>	An evaluation of how valuable the current board position is. </returns>
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		static private int EvaluateBoard(TPs ps, int cPlys, BacktrackInfo bti)
+		private static int EvaluateBoard(TPs ps, int cPlys, BacktrackInfo bti)
 		{
 			// Get the list of potential moves from this partial board
 			var lstIExtensions = ps.GetIExtensions();
